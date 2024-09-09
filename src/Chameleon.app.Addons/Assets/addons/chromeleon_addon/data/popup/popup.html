@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chromeleon Defender</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Chromeleon Defender</h1>
+    <div class="toggle-container">
+      <label class="toggle">
+        <input type="checkbox" id="toggle-extension" checked>
+        <span class="toggle-switch"></span>
+        <span class="toggle-label" id="status-text">Enabled</span>
+      </label>
+    </div>
+    <div class="settings">
+      <h2 class="subtitle">Settings</h2>
+      <div class="setting-item">
+        <label for="webgl-spoofing" class="checkbox">
+          <input type="checkbox" id="webgl-spoofing" checked>
+          <span class="checkmark"></span>
+          WebGL Spoofing
+        </label>
+      </div>
+      <div class="setting-item">
+        <label for="canvas-protection" class="checkbox">
+          <input type="checkbox" id="canvas-protection" checked>
+          <span class="checkmark"></span>
+          Canvas Fingerprinting Protection
+        </label>
+      </div>
+      <div class="setting-item">
+        <label for="client-rects-spoofing" class="checkbox">
+          <input type="checkbox" id="client-rects-spoofing" checked>
+          <span class="checkmark"></span>
+          Client Rects Spoofing
+        </label>
+      </div>
+      <div class="setting-item">
+        <label for="fonts-spoofing" class="checkbox">
+          <input type="checkbox" id="fonts-spoofing" checked>
+          <span class="checkmark"></span>
+          Fonts Spoofing
+        </label>
+      </div>
+      <div class="setting-item">
+        <label for="noise-level" class="dropdown-label">Noise Level:</label>
+        <div class="dropdown">
+          <select id="noise-level">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="stats" hidden>
+      <h2 class="subtitle">Statistics</h2>
+      <p>Fingerprinting attempts blocked: <span id="blocked-count" class="highlight">0</span></p>
+    </div>
+  </div>
+  <script type='module' src="popup.js"></script>
+</body>
+</html>
