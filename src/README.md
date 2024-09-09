@@ -1,6 +1,8 @@
-# Chameleon.Avalonia.Addons.Net
+# Chameleon Defender NuGet Package
 
-Chameleon.Avalonia.Addons.Net is a library for loading browser extensions in Chameleon applications.
+## Overview
+
+Chameleon Defender is a .NET library designed to enhance privacy and security by spoofing various browser properties and behaviors. This README provides an overview of how to integrate and use the Chameleon Defender library in your .NET application.
 
 ## Installation
 
@@ -17,8 +19,8 @@ To use the extension loader in your application:
 1. Add the necessary using statements:
 
 ```csharp
-using Chameleon.Avalonia.Addons.Net.Services;
-using Chameleon.Avalonia.Addons.Net.Models;
+using Chameleon.app.Addons.Services;
+using Chameleon.app.Addons.Models;
 using Microsoft.Extensions.Logging;
 ```
 
