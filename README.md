@@ -1,5 +1,9 @@
 # Chameleon Defender
 
+##
+with special thanks this is a remasteres version of
+-https://github.com/sereneblue/chameleon
+
 ## Overview
 
 Chameleon Defender is a JavaScript-based tool designed to enhance privacy and security by spoofing various browser properties and behaviors. This README provides an overview of the features implemented in the `main.js` file.
