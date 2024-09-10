@@ -1,8 +1,14 @@
 # Chameleon Defender
 
-##
-with special thanks this is a remasteres version of
--https://github.com/sereneblue/chameleon
+## built from
+with special thanks to these guuys but this is a remastered version of
+https://github.com/sereneblue/chameleon
+https://mybrowseraddon.com/canvas-defender.html
+https://mybrowseraddon.com/font-defender.html
+https://mybrowseraddon.com/webgl-defender.html
+https://mybrowseraddon.com/clientrects-defender.html
+https://mybrowseraddon.com/webrtc-control.html
+
 
 ## Overview
 
