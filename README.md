@@ -8,6 +8,9 @@ https://mybrowseraddon.com/font-defender.html
 https://mybrowseraddon.com/webgl-defender.html
 https://mybrowseraddon.com/clientrects-defender.html
 https://mybrowseraddon.com/webrtc-control.html
+https://github.com/joue-quroi/spoof-timezone
+https://github.com/joue-quroi/canvas-fingerprint-blocker
+https://github.com/joue-quroi/spoof-geolocation
 
 
 ## Overview
