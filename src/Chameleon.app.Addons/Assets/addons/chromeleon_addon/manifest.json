@@ -4,7 +4,7 @@
   "offline_enabled": true,
   "name": "Chromeleon Defender",
   "description": "Defender against fingerprinting.",
-  "permissions": ["privacy", "storage", "contextMenus", "notifications"],
+  "permissions": ["privacy", "storage", "contextMenus", "notifications","scripting"],
   "host_permissions": ["*://*/*"],
   "commands": {
     "_execute_action": {}
