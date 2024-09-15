@@ -38,6 +38,7 @@ const win = {
           e.data &&
           e.data.type === "REQUEST_Chromeleon_DEFENDER_SETTINGS"
         ) {
+          console.log("ISO --- Message received");
           e.preventDefault();
           e.stopPropagation();
           settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
