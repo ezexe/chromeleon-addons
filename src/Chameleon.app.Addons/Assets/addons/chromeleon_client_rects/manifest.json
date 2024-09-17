@@ -1,19 +1,19 @@
 {
   "version": "1.1.0",
   "manifest_version": 3,
-  "offline_enabled": true,
   "name": "Chameleon ClientRects Defender",
-  "description": "Defending against ClientRects fingerprinting by reporting a obfuscated value.",
-  "commands": {
-    "_execute_action": {}
-  },
+  "description": "Defending against ClientRects fingerprinting by reporting an obfuscated value.",
   "background": {
     "service_worker": "background.js"
   },
   "permissions": [
     "storage",
     "contextMenus",
-    "notifications"
+    "notifications",
+    "runtime",
+    "tabs",
+    "activeTab",
+    "scripting"
   ],
   "action": {
     "default_popup": "data/popup/popup.html",
@@ -29,13 +29,13 @@
   },
   "content_scripts": [
     {
-      "world": "MAIN",
-      "all_frames": true,
+      //"world": "MAIN", this is make error --> Uncaught TypeError: Cannot read properties of undefined (reading 'addListener') "at": null,"inject.js": null,82: 26,
+      //"all_frames": true, this si make warning --> Autofocus processing was blocked because a document already has a focused element.
       "matches": [ "*://*/*" ],
       "match_about_blank": true,
       "run_at": "document_start",
       "match_origin_as_fallback": true,
-      "js": [ "data/content_script/page_context/inject.js" ]
+      "js": [ "data/content_script/page_context/inject.js"]
     },
     {
       "world": "ISOLATED",

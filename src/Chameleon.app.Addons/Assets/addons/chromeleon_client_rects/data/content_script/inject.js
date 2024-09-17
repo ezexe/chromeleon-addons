@@ -1,6 +1,5 @@
 var background = (function () {
   let tmp = {};
-  /*  */
   chrome.runtime.onMessage.addListener(function (request) {
     for (let id in tmp) {
       if (tmp[id] && (typeof tmp[id] === "function")) {
@@ -12,7 +11,7 @@ var background = (function () {
       }
     }
   });
-  /*  */
+  
   return {
     "receive": function (id, callback) {
       tmp[id] = callback;
@@ -42,7 +41,7 @@ window.addEventListener("message", function (e) {
   if (e.data && e.data === "clientrects-defender-alert") {
     e.preventDefault();
     e.stopPropagation();
-    /*  */
+    
     background.send("fingerprint", {
       "host": document.location.host
     });
