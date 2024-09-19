@@ -51,8 +51,6 @@ async function updateProxy() {
     //}
       await chrome.tabs.update({ url: settings.url });
     /*  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });*/
-   /*   await chrome.tabs.update({ url: url });*/
-      
     log('Proxy settings updated successfully');
   } catch (error) {
     log(`Error updating proxy settings: ${error.message}`);

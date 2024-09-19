@@ -4,6 +4,8 @@ const SETTINGS_ARRAY = [
   "canvasProtection",
   "clientRectsSpoofing",
   "fontsSpoofing",
+  "geoSpoofing",
+  "timezoneSpoofing",
   "dAPI",
   "eMode",
   "dMode",
@@ -97,6 +99,7 @@ const win = {
           e.preventDefault();
           e.stopPropagation();
           settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
+          settings = { ...settings, timezone: self.prefs.timezone, offset: self.prefs.offset };
           win.send("Chromeleon_DEFENDER_SETTINGS_RESPONSE", settings);
         }
       },
