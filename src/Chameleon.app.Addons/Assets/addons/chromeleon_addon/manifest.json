@@ -4,7 +4,7 @@
   "offline_enabled": true,
   "name": "Chromeleon Defender",
   "description": "Defender against fingerprinting.",
-  "permissions": ["privacy", "storage", "contextMenus", "notifications","scripting"],
+  "permissions": ["privacy", "storage", "webNavigation", "contextMenus", "notifications","scripting"],
   "host_permissions": ["*://*/*"],
   "commands": {
     "_execute_action": {}
@@ -27,17 +27,6 @@
   },
   "content_scripts": [
     {
-      "world": "MAIN",
-      "all_frames": true,
-      "matches": ["*://*/*"],
-      "match_about_blank": true,
-      "run_at": "document_start",
-      "match_origin_as_fallback": true,
-      "js": [
-        "data/scripts/main.js"
-      ]
-    },
-    {
       "world": "ISOLATED",
       "all_frames": true,
       "matches": ["*://*/*"],
@@ -46,6 +35,17 @@
       "match_origin_as_fallback": true,
       "js": [
         "data/scripts/isolated.js"
+      ]
+    },
+    {
+      "world": "MAIN",
+      "all_frames": true,
+      "matches": ["*://*/*"],
+      "match_about_blank": true,
+      "run_at": "document_start",
+      "match_origin_as_fallback": true,
+      "js": [
+        "data/scripts/main.js"
       ]
     }
   ],

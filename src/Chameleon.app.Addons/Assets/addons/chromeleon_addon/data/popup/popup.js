@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const clientRectsSpoofing = document.getElementById('client-rects-spoofing');
   const fontsSpoofing = document.getElementById('fonts-spoofing');
   const geoSpoofing = document.getElementById('geo-spoofing');
+  const timezoneSpoofing = document.getElementById('timezone-spoofing');
   const noiseLevel = document.getElementById('noise-level');
   const statusText = document.getElementById('status-text');
   const blockedCount = document.getElementById('blocked-count');
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     clientRectsSpoofing.checked = result.clientRectsSpoofing !== false;
     fontsSpoofing.checked = result.fontsSpoofing !== false;
     geoSpoofing.checked = result.geoSpoofing !== false;
+    timezoneSpoofing.checked = result.timezoneSpoofing !== false;
     noiseLevel.value = result.noiseLevel || 'medium';
     blockedCount.textContent = result.blockedCount || 0;
     updateStatus();
@@ -39,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     settings.clientRectsSpoofing = clientRectsSpoofing.checked;
     settings.fontsSpoofing = fontsSpoofing.checked;
     settings.geoSpoofing = geoSpoofing.checked;
+    settings.timezoneSpoofing = timezoneSpoofing.checked;
     settings.noiseLevel = noiseLevel.value;
 
     chrome.storage.sync.set(settings, function() {
@@ -55,5 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
   clientRectsSpoofing.addEventListener('change', saveSettings);
   fontsSpoofing.addEventListener('change', saveSettings);
   geoSpoofing.addEventListener('change', saveSettings);
+  timezoneSpoofing.addEventListener('change', saveSettings);
   noiseLevel.addEventListener('change', saveSettings);
 });
