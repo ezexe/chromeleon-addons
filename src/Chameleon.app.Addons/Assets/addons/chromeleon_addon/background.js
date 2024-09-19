@@ -1,19 +1,19 @@
 import logger, {setLogLevel, log} from './modules/logger.js';
 import { SETTINGS_ARRAY } from './modules/settings.js';
 
-let settings = {
-  enabled: true,
-  webglSpoofing: true,
-  canvasProtection: true,
-  clientRectsSpoofing: true,
-  fontsSpoofing: true,
-  geoSpoofing: true,
-  dAPI: true,
-  eMode: 'disable_non_proxied_udp',
-  dMode: 'default_public_interface_only',
-  noiseLevel: 'medium',
-  debug: 3,
-};
+//let settings = {
+//  enabled: true,
+//  webglSpoofing: true,
+//  canvasProtection: true,
+//  clientRectsSpoofing: true,
+//  fontsSpoofing: true,
+//  geoSpoofing: true,
+//  dAPI: true,
+//  eMode: 'disable_non_proxied_udp',
+//  dMode: 'default_public_interface_only',
+//  noiseLevel: 'medium',
+//  debug: 3,
+//};
 // isFirefox ? 'proxy_only' : 'disable_non_proxied_udp'
 const IS_FIREFOX =
   /Firefox/.test(navigator.userAgent) || typeof InstallTrigger !== "undefined";

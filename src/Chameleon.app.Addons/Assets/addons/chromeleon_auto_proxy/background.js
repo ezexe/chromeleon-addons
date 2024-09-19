@@ -35,16 +35,24 @@ function updateProxyConfig() {
   };
 }
 
+function updateNoProxyConfig() {
+    return {
+        mode: "system"
+    };
+}
 async function updateProxy() {
   try {
     log('Updating proxy settings');
-    const proxyConfig = updateProxyConfig();
+    const proxyConfig = settings.enabled ? updateProxyConfig() : updateNoProxyConfig();
     await chrome.proxy.settings.set({value: proxyConfig, scope: 'regular'});
     let tabs = await chrome.tabs.query({});
-    if (tabs.length > 1) {
-      await chrome.tabs.remove(tabs[tabs.length - 1].id);
-    }
-    await chrome.tabs.update({ url: settings.url });
+    //if (tabs.length > 1) {
+    //  await chrome.tabs.remove(tabs[tabs.length - 1].id);
+    //}
+      await chrome.tabs.update({ url: settings.url });
+    /*  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });*/
+   /*   await chrome.tabs.update({ url: url });*/
+      
     log('Proxy settings updated successfully');
   } catch (error) {
     log(`Error updating proxy settings: ${error.message}`);
