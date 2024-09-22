@@ -621,11 +621,12 @@
   logger.log("Page context script loaded and active");
 
   // Timezone addon
-  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const port = document.getElementById('stz-obhgtd');
   port.remove();
 
   const OriginalDate = Date;
+  
+  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // prefs
   const prefs = {
