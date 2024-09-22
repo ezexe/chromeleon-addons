@@ -55,7 +55,7 @@ async function saveSettings() {
   chrome.storage.local.set({
     timezone: user.value,
     random: document.getElementById('random').checked,
-    update: document.getElementById('update').checked
+    myIP: document.getElementById('update').checked
   }, () => {
     chrome.runtime.sendMessage({
       method: 'update-offset'
@@ -132,13 +132,13 @@ const initializeTimezoneUI = () =>
   chrome.storage.local.get({
     timezone: 'Etc/GMT',
     random: false,
-    update: false
+    myIP: false
   }, prefs => {
     console.log(offset,user,prefs,prefs.timezone,"--prefs--");
     offset.value = user.value = prefs.timezone;
     offset.dispatchEvent(new Event('change'));
     document.getElementById('random').checked = prefs.random;
-    document.getElementById('update').checked = prefs.update;
+    document.getElementById('update').checked = prefs.myIP;
   });
 }
 
