@@ -32,11 +32,14 @@ const port = document.createElement('span');
 port.id = 'stz-obhgtd';
 port.dataset.timezone = 'Etc/GMT';
 port.dataset.offset = 0;
+port.dataset.myIP = false;
 document.documentElement.append(port);
 
-self.update = reason => {
+self.update = reason => 
+{
   port.dataset.timezone = self.prefs.timezone;
   port.dataset.offset = self.prefs.offset;
+  port.dataset.myIP = self.prefs.myIP;
 
   port.dispatchEvent(new Event('change'));
 };
@@ -93,7 +96,7 @@ const win = {
         if (
           e.data &&
           e.data.type === "REQUEST_Chromeleon_DEFENDER_SETTINGS"
-        ) {
+        ) { 
           e.preventDefault();
           e.stopPropagation();
           settings = await chrome.storage.sync.get(SETTINGS_ARRAY);

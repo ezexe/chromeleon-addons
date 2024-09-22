@@ -459,6 +459,7 @@ const uo = () => new Promise(resolve => chrome.storage.local.get({
   catch (e) {
     prefs.timezone = 'Etc/GMT';
     prefs.offset = 0;
+    prefs.myIP = false;
     notify(`Cannot detect offset for "${prefs.timezone}". Using 0 as offset`);
     chrome.storage.local.set(prefs);
     console.error(e);
@@ -506,7 +507,8 @@ const onCommitted = ({url, tabId, frameId}) => {
     chrome.storage.local.get({
       random: false,
       timezone: 'Etc/GMT',
-      offset: 0
+      offset: 0,
+      myIP: false
     }, prefs => {
       if (prefs.random) {
         const key = 'random.' + tabId;

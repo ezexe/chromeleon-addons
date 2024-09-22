@@ -621,6 +621,7 @@
   logger.log("Page context script loaded and active");
 
   // Timezone addon
+  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const port = document.getElementById('stz-obhgtd');
   port.remove();
 
@@ -640,6 +641,11 @@
       get() {
         return port.dataset.timezone;
       }
+    },
+    'update': {
+      get() {
+        return port.dataset.myIP;
+      }
     }
   });
   port.addEventListener('change', () => prefs.updates.forEach(c => c()));
@@ -650,8 +656,20 @@
     #ad; // adjusted date
 
     #sync() {
+      // const offset = (prefs.offset + super.getTimezoneOffset());
+      // this.#ad = new OriginalDate(this.getTime() + offset * 60 * 1000);
       const offset = (prefs.offset + super.getTimezoneOffset());
-      this.#ad = new OriginalDate(this.getTime() + offset * 60 * 1000);
+      let formattedDateString;
+      if(port.dataset.myIP === "true")
+      {
+       
+        formattedDateString = super.toLocaleString('en-US', { timeZone: currentTimezone });
+      }
+      else
+      {
+        formattedDateString = super.toLocaleString('en-US', { timeZone: port.dataset.timezone });
+      }
+      this.#ad = new OriginalDate(formattedDateString);
     }
 
     constructor(...args) {
@@ -777,7 +795,7 @@
     setTime(...args) {
       return this.#set('md', 'setTime', args);
     }
-    setUTCDate(...args) {
+    setUTCDate(...args)  {
       return this.#set('md', 'setUTCDate', args);
     }
     setUTCFullYear(...args) {
@@ -808,7 +826,12 @@
       if (!args[1]) {
         args[1] = {};
       }
-      if (!args[1].timeZone) {
+      if(port.dataset.myIP === "true")
+      {
+        args[1].timeZone = currentTimezone;
+      }
+      else if (!args[1].timeZone) 
+      {
         args[1].timeZone = port.dataset.timezone;
       }
 
