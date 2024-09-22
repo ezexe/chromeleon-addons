@@ -60,14 +60,17 @@ namespace Chameleon.app.Addons.Tests
             var cachepath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var settings = """
                 let settings = {
-                    enabled: true,
-                    webglSpoofing: true,
-                    canvasProtection: true,
-                    clientRectsSpoofing: true,
-                    fontsSpoofing: false,
-                    noiseLevel: 'medium',
-                    loggingEnabled: true,
-                    errorLoggingEnabled: true,
+                  enabled: true,
+                  webglSpoofing: true,
+                  canvasProtection: true,
+                  clientRectsSpoofing: true,
+                  fontsSpoofing: true,
+                  geoSpoofing: true,
+                  dAPI: true,
+                  eMode: 'disable_non_proxied_udp',
+                  dMode: 'default_public_interface_only',
+                  noiseLevel: 'medium',
+                  debug: 3,
                 };
                 """;
 

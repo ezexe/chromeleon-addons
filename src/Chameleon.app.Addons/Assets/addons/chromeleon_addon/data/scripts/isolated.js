@@ -4,6 +4,8 @@ const SETTINGS_ARRAY = [
   "canvasProtection",
   "clientRectsSpoofing",
   "fontsSpoofing",
+  "geoSpoofing",
+  "timezoneSpoofing",
   "dAPI",
   "eMode",
   "dMode",
@@ -17,12 +19,68 @@ let settings = {
   canvasProtection: true,
   clientRectsSpoofing: true,
   fontsSpoofing: false,
+  geoSpoofing: true,
+  timezoneSpoofing: true,
   dAPI: true,
   eMode: "disable_non_proxied_udp",
   dMode: "default_public_interface_only",
   noiseLevel: "medium",
   debug: 3,
 };
+
+// timezone addon
+
+const port = document.createElement('span');
+port.id = 'stz-obhgtd';
+port.dataset.timezone = 'Etc/GMT';
+port.dataset.offset = 0;
+document.documentElement.append(port);
+
+self.update = reason => {
+  port.dataset.timezone = self.prefs.timezone;
+  port.dataset.offset = self.prefs.offset;
+
+  port.dispatchEvent(new Event('change'));
+};
+
+if (typeof self.prefs === 'undefined') {
+  try {
+    if (self !== parent) {
+      self.prefs = parent.prefs;
+    }
+  }
+  catch (e) {}
+}
+
+// ask from bg (just as a backup)
+if (typeof self.prefs === 'undefined') {
+  setTimeout(() => {
+    if (typeof self.prefs === 'undefined') {
+      chrome.runtime.sendMessage({
+        method: 'get-prefs'
+      }, prefs => {
+        self.prefs = prefs;
+        self.update('ask from bg');
+      });
+    }
+  }, 500);
+}
+else {
+  self.update('top frame or committed');
+}
+
+// updates
+chrome.storage.onChanged.addListener(ps => {
+  if (ps.offset) {
+    self.prefs.offset = ps.offset.newValue;
+  }
+  if (ps.timezone) {
+    self.prefs.timezone = ps.timezone.newValue;
+  }
+  if (ps.offset || ps.timezone) {
+    self.update('updated');
+  }
+});  
 
 const win = {
   send(type, data) {
@@ -38,10 +96,10 @@ const win = {
           e.data &&
           e.data.type === "REQUEST_Chromeleon_DEFENDER_SETTINGS"
         ) {
-          console.log("ISO --- Message received");
           e.preventDefault();
           e.stopPropagation();
           settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
+          settings = { ...settings, timezone: self.prefs.timezone, offset: self.prefs.offset };
           win.send("Chromeleon_DEFENDER_SETTINGS_RESPONSE", settings);
         }
       },
