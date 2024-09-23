@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chameleon.app.Addons.Tests", "Chameleon.app.Addons.Tests\Chameleon.app.Addons.Tests.csproj", "{0A3603A2-C21F-4801-BCE3-1F989982DDE3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chameleon.lib.Common", "..\..\chameleon-lib\Chameleon.lib.Common\Chameleon.lib.Common.csproj", "{68370D93-15F9-42A1-A1E1-CC5F0CF16FC2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chameleon.lib.ThirdParty", "..\..\chameleon-lib\Chameleon.lib.ThirdParty\Chameleon.lib.ThirdParty.csproj", "{AFAD43EF-7BA7-405F-8EAD-E8A4B1C91E5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,14 @@ Global
 		{0A3603A2-C21F-4801-BCE3-1F989982DDE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A3603A2-C21F-4801-BCE3-1F989982DDE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A3603A2-C21F-4801-BCE3-1F989982DDE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68370D93-15F9-42A1-A1E1-CC5F0CF16FC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68370D93-15F9-42A1-A1E1-CC5F0CF16FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68370D93-15F9-42A1-A1E1-CC5F0CF16FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68370D93-15F9-42A1-A1E1-CC5F0CF16FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFAD43EF-7BA7-405F-8EAD-E8A4B1C91E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFAD43EF-7BA7-405F-8EAD-E8A4B1C91E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFAD43EF-7BA7-405F-8EAD-E8A4B1C91E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFAD43EF-7BA7-405F-8EAD-E8A4B1C91E5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
