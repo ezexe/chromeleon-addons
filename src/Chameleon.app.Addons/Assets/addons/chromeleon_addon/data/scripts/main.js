@@ -1,15 +1,52 @@
 {
+//  // Content script to be injected into the web page
+// function modifyIframeSandbox() {
+//   // Select all iframes on the page
+//   const iframes = document.querySelectorAll('iframe');
+  
+//   iframes.forEach(iframe => {
+//     // Check if the iframe has a sandbox attribute
+//     if (iframe.hasAttribute('sandbox')) {
+//       // Get the current sandbox value
+//       let sandboxValue = iframe.getAttribute('sandbox');
+      
+//       // Add 'allow-scripts' if it's not already present
+//       if (!sandboxValue.includes('allow-scripts')) {
+//         sandboxValue += ' allow-scripts';
+//         iframe.setAttribute('sandbox', sandboxValue.trim());
+//       }
+//     } else {
+//       // If there's no sandbox attribute, add it with 'allow-scripts'
+//       iframe.setAttribute('sandbox', 'allow-scripts');
+//     }
+//   });
+// }
+
+// // Function to start observing DOM changes
+// function startObserving() {
+//   const observer = new MutationObserver(modifyIframeSandbox);
+//   observer.observe(document.body, { childList: true, subtree: true });
+//   window.modifyIframeSandbox = modifyIframeSandbox;
+// }
+
+// // Run the function immediately if the DOM is ready
+// if (document.readyState === 'loading') {
+//   document.addEventListener('DOMContentLoaded', () => {
+//     modifyIframeSandbox();
+//     startObserving();
+//   });
+// } else {
+//   modifyIframeSandbox();
+//   startObserving();
+// }
+
   let loaded = false;
 
   const createLogger = () => ({
-    log: (message, ...args) =>
-      1,
-    error: (message, ...args) =>
-      3,
-    warn: (message, ...args) =>
-     3,
-    info: (message, ...args) =>
-    4,
+    log: (message, ...args) => 1,
+    error: (message, ...args) => 3,
+    warn: (message, ...args) => 3,
+    info: (message, ...args) => 4,
   });
   const logger = createLogger();
 
@@ -536,10 +573,7 @@
     if (!loaded && tries < 18) {
       tries++;
       logger.log("Settings not loaded yet");
-      window.setTimeout(
-        applySettings,
-        250
-      );
+      window.setTimeout(applySettings, 250);
       return;
     }
     logger.log("Settings loaded");
@@ -624,37 +658,45 @@
   logger.log("Page context script loaded and active");
 
   // Timezone addon
-  const port = document.getElementById('stz-obhgtd');
-  port.remove();
+  // const port = document.getElementById("stz-obhgtd");
+  // port.remove();
 
-  const OriginalDate = Date;
-  
-  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // const OriginalDate = Date;
+
+  // const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // prefs
-  const prefs = {
-    updates: [] // update this.#ad of each Date object
-  };
-  Object.defineProperties(prefs, {
-    'offset': {
-      get() {
-        return parseInt(port.dataset.offset);
-      }
-    },
-    'timezone': {
-      get() {
-        return port.dataset.timezone;
-      }
-    },
-    'update': {
-      get() {
-        return port.dataset.myIP;
-      }
-    }
-  });
-  port.addEventListener('change', () => prefs.updates.forEach(c => c()));
+  
+  // const port = {
+  //   dataset: {
+  //     offset: '-14400000', // Default offset in milliseconds (e.g., -4 hours for EDT)
+  //     timezone: 'America/New_York', // Default spoofed timezone
+  //     myIP: 'false' // Set to 'true' to use real timezone
+  //   }
+  // };
+  // const prefs = {
+  //   updates: [], // update this.#ad of each Date object
+  // };
+  // Object.defineProperties(prefs, {
+  //   offset: {
+  //     get() {
+  //       return parseInt(port.dataset.offset);
+  //     },
+  //   },
+  //   timezone: {
+  //     get() {
+  //       return port.dataset.timezone;
+  //     },
+  //   },
+  //   update: {
+  //     get() {
+  //       return port.dataset.myIP;
+  //     },
+  //   },
+  // });
+  // port.addEventListener("change", () => prefs.updates.forEach((c) => c()));
 
-  /* Date Spoofing */
+  // /* Date Spoofing */
 
   // class SpoofDate extends Date {
   //   #ad; // adjusted date
@@ -666,7 +708,7 @@
   //     let formattedDateString;
   //     if(port.dataset.myIP === "true")
   //     {
-       
+
   //       formattedDateString = super.toLocaleString('en-US', { timeZone: currentTimezone });
   //     }
   //     else
@@ -834,7 +876,7 @@
   //     {
   //       args[1].timeZone = currentTimezone;
   //     }
-  //     else if (!args[1].timeZone) 
+  //     else if (!args[1].timeZone)
   //     {
   //       args[1].timeZone = port.dataset.timezone;
   //     }
@@ -850,253 +892,83 @@
   //   }
   // });
 
-
-// (function () {
-//   const originalDate = Date;
-// const originalPerformanceNow = performance.now;
-// const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-// const port = {
-//   dataset: {
-//     offset: '-14400000', // Default offset in milliseconds (e.g., -4 hours for EDT)
-//     timezone: 'America/New_York', // Default spoofed timezone
-//     myIP: 'false' // Set to 'true' to use real timezone
-//   }
-// };
-
-// function getSpoofedTimezone() {
-//   return port.dataset.myIP === 'true' ? currentTimezone : port.dataset.timezone;
-// }
-
-// function getTimeOffset() {
-//   return parseInt(port.dataset.offset);
-// }
-
-// function adjustDate(date) {
-//   const adjustedTime = date.getTime() + getTimeOffset();
-//   return new originalDate(adjustedTime);
-// }
-
-// function SpoofedDate(...args) {
-//   if (!(this instanceof SpoofedDate)) {
-//     return new SpoofedDate(...args);
-//   }
-//   let realDate;
-//   if (args.length === 0) {
-//     realDate = new originalDate();
-//   } else if (args.length === 1) {
-//     if (typeof args[0] === 'string') {
-//       realDate = new originalDate(args[0]);
-//     } else {
-//       realDate = new originalDate(args[0] - getTimeOffset());
-//     }
-//   } else {
-//     realDate = new originalDate(...args);
-//   }
-//   this.adjustedDate = adjustDate(realDate);
-// }
-
-// SpoofedDate.prototype = Object.create(originalDate.prototype);
-// SpoofedDate.prototype.constructor = SpoofedDate;
-
-// const methodsToSpoof = [
-//   'getDate', 'getDay', 'getFullYear', 'getHours', 'getMilliseconds',
-//   'getMinutes', 'getMonth', 'getSeconds', 'getTime', 'getUTCDate', 
-//   'getUTCDay', 'getUTCFullYear', 'getUTCHours', 'getUTCMilliseconds', 
-//   'getUTCMinutes', 'getUTCMonth', 'getUTCSeconds', 'toISOString', 
-//   'toJSON', 'toUTCString', 'valueOf'
-// ];
-
-// methodsToSpoof.forEach(method => {
-//   Object.defineProperty(SpoofedDate.prototype, method, {
-//     value: function(...args) {
-//       return this.adjustedDate[method](...args);
-//     }
-//   });
-// });
-
-// SpoofedDate.prototype.toString = function() {
-//   if (isNaN(this.adjustedDate)) {
-//     return originalDate.prototype.toString.call(this.adjustedDate);
-//   }
-//   return this.toDateString() + ' ' + this.toTimeString();
-// };
-
-// SpoofedDate.prototype.toTimeString = function() {
-//   if (isNaN(this.adjustedDate)) {
-//     return originalDate.prototype.toTimeString.call(this.adjustedDate);
-//   }
-
-//   const timeString = this.adjustedDate.toLocaleString('en-US', {
-//     hour: '2-digit',
-//     minute: '2-digit',
-//     second: '2-digit',
-//     timeZone: getSpoofedTimezone(),
-//     hour12: false
-//   });
-
-//   const offset = this.getTimezoneOffset();
-//   const offsetSign = offset <= 0 ? '+' : '-';
-//   const offsetHours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
-//   const offsetMinutes = (Math.abs(offset) % 60).toString().padStart(2, '0');
-
-//   const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZone: getSpoofedTimezone(), timeZoneName: 'short' })
-//     .formatToParts(this.adjustedDate)
-//     .find(part => part.type === 'timeZoneName').value;
-
-//   return `${timeString} GMT${offsetSign}${offsetHours}${offsetMinutes} (${timeZoneName})`;
-// };
-
-// SpoofedDate.prototype.getTimezoneOffset = function() {
-//   const spoofedDate = new originalDate(this.adjustedDate.toLocaleString('en-US', { timeZone: getSpoofedTimezone() }));
-//   return -getTimeOffset() / 60000; // Convert milliseconds to minutes
-// };
-
-// SpoofedDate.prototype.toDateString = function() {
-//   return originalDate.prototype.toDateString.call(this.adjustedDate);
-// };
-
-
-// ['toLocaleString', 'toLocaleDateString', 'toLocaleTimeString'].forEach(method => {
-//   Object.defineProperty(SpoofedDate.prototype, method, {
-//     value: function(...args) {
-//       if (args.length < 2) args.push({});
-//       args[1].timeZone = getSpoofedTimezone();
-//       return this.adjustedDate[method](...args);
-//     }
-//   });
-// });
-
-// Object.defineProperty(SpoofedDate, 'now', {
-//   value: function() {
-//     return originalDate.now() + getTimeOffset();
-//   }
-// });
-
-// ['parse', 'UTC'].forEach(method => {
-//   Object.defineProperty(SpoofedDate, method, {
-//     value: function(...args) {
-//       return originalDate[method](...args);
-//     }
-//   });
-// });
-
-// Object.defineProperty(window, 'Date', {
-//   value: SpoofedDate,
-//   writable: true,
-//   enumerable: false,
-//   configurable: true
-// });
-
-// const OriginalDateTimeFormat = Intl.DateTimeFormat;
-// function SpoofedDateTimeFormat(...args) {
-//   if (!args[1]) args[1] = {};
-//   args[1].timeZone = getSpoofedTimezone();
-//   return new OriginalDateTimeFormat(...args);
-// }
-// SpoofedDateTimeFormat.prototype = OriginalDateTimeFormat.prototype;
-// SpoofedDateTimeFormat.prototype.constructor = SpoofedDateTimeFormat;
-
-// Object.defineProperty(Intl, 'DateTimeFormat', {
-//   value: SpoofedDateTimeFormat,
-//   writable: true,
-//   enumerable: false,
-//   configurable: true
-// });
-
-// const timeOrigin = originalDate.now();
-// Object.defineProperty(performance, 'now', {
-//   value: function() {
-//     return originalDate.now() - timeOrigin + getTimeOffset();
-//   },
-//   writable: true,
-//   enumerable: true,
-//   configurable: true
-// });
-
-// console.log('Time and timezone spoofing applied:', getSpoofedTimezone(), 'Offset:', getTimeOffset());
-
-// window.updateSpoofingSettings = function(newOffset, newTimezone, useRealIP) {
-//   port.dataset.offset = newOffset.toString();
-//   port.dataset.timezone = newTimezone;
-//   port.dataset.myIP = useRealIP ? 'true' : 'false';
-//   console.log('Updated spoofing settings:', getSpoofedTimezone(), 'Offset:', getTimeOffset());
-// };
-
-//   console.log("Time on Server", new Date().toUTCString());
-//   console.log("Time on Local Machine", new Date().toString());
-//   console.log("Time from Intl.DateTimeFormat #1", new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' }).format(new Date()));
-//   console.log("Time from Intl.DateTimeFormat #2", new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long', timeZone: 'America/New_York' }).format(new Date()));
-//   console.log("Timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
-//   console.log("Timezone Offset", new Date().getTimezoneOffset(), "minutes");
-//   console.log("Int", Math.floor(new Date().getTime() / 1000));
-//   console.log("Alt", new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-//   console.log("Beat", Math.floor((new Date().getUTCHours() * 3600 + new Date().getUTCMinutes() * 60 + new Date().getUTCSeconds() + 3600) / 86.4));
-
-// // Modify the checkSandboxedIframe function
-// function checkSandboxedIframe() {
-//   if (!document.body) {
-//     console.log("Document body not ready, retrying in 100ms");
-//     setTimeout(checkSandboxedIframe, 100);
-//     return;
-//   }
-
-//   var sandFrame = document.createElement("iframe");
-//   sandFrame.setAttribute("sandbox", "allow-same-origin");
-//   sandFrame.style.display = "none";
-//   document.body.appendChild(sandFrame);
   
-//   var sandWindow = sandFrame.contentWindow || sandFrame.contentDocument.defaultView;
-//   var engine = {
-//     date: new sandWindow.Date(),
-//     dateFormat: sandWindow.Intl.DateTimeFormat().resolvedOptions(),
-//     alt: new sandWindow.Intl.DateTimeFormat("en", {
-//       dateStyle: "full",
-//       timeStyle: "long"
-//     }).format(new sandWindow.Date())
-//   };
-  
-//   document.body.removeChild(sandFrame);
+  // function getSpoofedTimezone() {
+  //   return port.dataset.myIP === 'true' ? currentTimezone : port.dataset.timezone;
+  // }
 
-//   console.log("Sandboxed iframe check:");
-//   console.log("Date:", engine.date.toString());
-//   console.log("DateFormat:", JSON.stringify(engine.dateFormat));
-//   console.log("Alt:", engine.alt);
+  // function getTimeOffset() {
+  //   return parseInt(port.dataset.offset);
+  // }
 
-//   console.log("\nCompare with spoofed values:");
-//   var spoofedDate = new Date();
-//   console.log("Spoofed Date:", spoofedDate.toString());
-//   console.log("Spoofed DateFormat:", JSON.stringify(Intl.DateTimeFormat().resolvedOptions()));
-//   console.log("Spoofed Alt:", new Intl.DateTimeFormat("en", {
-//     dateStyle: "full",
-//     timeStyle: "long"
-//   }).format(spoofedDate));
+  // function adjustDate(date) {
+  //   const adjustedTime = date.getTime() + getTimeOffset();
+  //   return new OriginalDate(adjustedTime);
+  // }
 
-//   // Log additional information for debugging
-//   console.log("\nAdditional Debug Info:");
-//   console.log("Current Timezone:", currentTimezone);
-//   console.log("Spoofed Timezone:", getSpoofedTimezone());
-//   console.log("Time Offset:", getTimeOffset());
-//   console.log("Spoofed getTimezoneOffset:", spoofedDate.getTimezoneOffset());
-// }
+  // // Modify the checkSandboxedIframe function
+  // function checkSandboxedIframe() {
+  //   if (!document.body) {
+  //     console.log("Document body not ready, retrying in 100ms");
+  //     setTimeout(checkSandboxedIframe, 100);
+  //     return;
+  //   }
 
-// // Modify how we call the check function
-// if (document.readyState === "loading") {
-//   document.addEventListener("DOMContentLoaded", checkSandboxedIframe);
-// } else {
-//   checkSandboxedIframe();
-// }
+  //   var sandFrame = document.createElement("iframe");
+  //   sandFrame.setAttribute("sandbox", "allow-same-origin");
+  //   sandFrame.style.display = "none";
+  //   document.body.appendChild(sandFrame);
 
-// console.log('Time and timezone spoofing applied:', getSpoofedTimezone(), 'Offset:', getTimeOffset());
+  //   var sandWindow = sandFrame.contentWindow || sandFrame.contentDocument.defaultView;
+  //   var engine = {
+  //     date: new sandWindow.Date(),
+  //     dateFormat: sandWindow.Intl.DateTimeFormat().resolvedOptions(),
+  //     alt: new sandWindow.Intl.DateTimeFormat("en", {
+  //       dateStyle: "full",
+  //       timeStyle: "long"
+  //     }).format(new sandWindow.Date())
+  //   };
 
-// window.updateSpoofingSettings = function(newOffset, newTimezone, useRealIP) {
-//   port.dataset.offset = newOffset.toString();
-//   port.dataset.timezone = newTimezone;
-//   port.dataset.myIP = useRealIP ? 'true' : 'false';
-//   console.log('Updated spoofing settings:', getSpoofedTimezone(), 'Offset:', getTimeOffset());
-  
-//   // Re-run the check after updating settings
-//   checkSandboxedIframe();
-// };
-// })();
+  //   document.body.removeChild(sandFrame);
+
+  //   console.log("Sandboxed iframe check:");
+  //   console.log("Date:", engine.date.toString());
+  //   console.log("DateFormat:", JSON.stringify(engine.dateFormat));
+  //   console.log("Alt:", engine.alt);
+
+  //   console.log("\nCompare with spoofed values:");
+  //   var spoofedDate = new Date();
+  //   console.log("Spoofed Date:", spoofedDate.toString());
+  //   console.log("Spoofed DateFormat:", JSON.stringify(Intl.DateTimeFormat().resolvedOptions()));
+  //   console.log("Spoofed Alt:", new Intl.DateTimeFormat("en", {
+  //     dateStyle: "full",
+  //     timeStyle: "long"
+  //   }).format(spoofedDate));
+
+  //   // Log additional information for debugging
+  //   console.log("\nAdditional Debug Info:");
+  //   console.log("Current Timezone:", currentTimezone);
+  //   console.log("Spoofed Timezone:", getSpoofedTimezone());
+  //   console.log("Time Offset:", getTimeOffset());
+  //   console.log("Spoofed getTimezoneOffset:", spoofedDate.getTimezoneOffset());
+  // }
+
+  // // Modify how we call the check function
+  // if (document.readyState === "loading") {
+  //   document.addEventListener("DOMContentLoaded", checkSandboxedIframe);
+  // } else {
+  //   checkSandboxedIframe();
+  // }
+
+  // // console.log('Time and timezone spoofing applied:', getSpoofedTimezone(), 'Offset:', getTimeOffset());
+
+  // window.updateSpoofingSettings = function(newOffset, newTimezone, useRealIP) {
+  //   port.dataset.offset = newOffset.toString();
+  //   port.dataset.timezone = newTimezone;
+  //   port.dataset.myIP = useRealIP ? 'true' : 'false';
+  //   // console.log('Updated spoofing settings:', getSpoofedTimezone(), 'Offset:', getTimeOffset());
+
+  //   // Re-run the check after updating settings
+  //   checkSandboxedIframe();
+  // };
 }
