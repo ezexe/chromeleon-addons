@@ -1,4 +1,5 @@
-(function() {
+(function() 
+{
     const originalDate = Date;
     const originalPerformanceNow = performance.now;
     const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -6,8 +7,10 @@
     const port = {
       dataset: {
         offset: '-14400000', // Default offset in milliseconds (e.g., -4 hours for EDT)
-        timezone: 'America/New_York', // Default spoofed timezone
-        myIP: 'false' // Set to 'true' to use real timezone
+        timezone: 'Etc/GMT',
+        random: false,
+        myIP: false,
+        locale: 'en-US'
       }
     };
   
