@@ -1,43 +1,3 @@
-// // Content script to be injected into the web page
-// function modifyIframeSandbox() {
-//   // Select all iframes on the page
-//   const iframes = document.querySelectorAll('iframe');
-  
-//   iframes.forEach(iframe => {
-//     // Check if the iframe has a sandbox attribute
-//     if (iframe.hasAttribute('sandbox')) {
-//       // Get the current sandbox value
-//       let sandboxValue = iframe.getAttribute('sandbox');
-      
-//       // Add 'allow-scripts' if it's not already present
-//       if (!sandboxValue.includes('allow-scripts')) {
-//         sandboxValue += ' allow-scripts';
-//         iframe.setAttribute('sandbox', sandboxValue.trim());
-//       }
-//     } else {
-//       // If there's no sandbox attribute, add it with 'allow-scripts'
-//       iframe.setAttribute('sandbox', 'allow-scripts');
-//     }
-//   });
-// }
-
-// // Function to start observing DOM changes
-// function startObserving() {
-//   const observer = new MutationObserver(modifyIframeSandbox);
-//   observer.observe(document.body, { childList: true, subtree: true });
-//   window.modifyIframeSandbox = modifyIframeSandbox;
-// }
-
-// // Run the function immediately if the DOM is ready
-// if (document.readyState === 'loading') {
-//   document.addEventListener('DOMContentLoaded', () => {
-//     modifyIframeSandbox();
-//     startObserving();
-//   });
-// } else {
-//   modifyIframeSandbox();
-//   startObserving();
-// }
 const SETTINGS_ARRAY = [
   "enabled",
   "webglSpoofing",
@@ -65,63 +25,6 @@ let settings = {
   noiseLevel: "medium",
   debug: 3,
 };
-
-// timezone addon
-
-// const port = document.createElement('span');
-// port.id = 'stz-obhgtd';
-// port.dataset.timezone = 'Etc/GMT';
-// port.dataset.offset = 0;
-// port.dataset.myIP = false;
-// document.documentElement.append(port);
-
-// self.update = reason => 
-// {
-//   port.dataset.timezone = self.prefs.timezone;
-//   port.dataset.offset = self.prefs.offset;
-//   port.dataset.myIP = self.prefs.myIP;
-
-//   port.dispatchEvent(new Event('change'));
-// };
-
-// if (typeof self.prefs === 'undefined') {
-//   try {
-//     if (self !== parent) {
-//       self.prefs = parent.prefs;
-//     }
-//   }
-//   catch (e) {}
-// }
-
-// // ask from bg (just as a backup)
-// if (typeof self.prefs === 'undefined') {
-//   setTimeout(() => {
-//     if (typeof self.prefs === 'undefined') {
-//       chrome.runtime.sendMessage({
-//         method: 'get-prefs'
-//       }, prefs => {
-//         self.prefs = prefs;
-//         self.update('ask from bg');
-//       });
-//     }
-//   }, 500);
-// }
-// else {
-//   self.update('top frame or committed');
-// }
-
-// // updates
-// chrome.storage.onChanged.addListener(ps => {
-//   if (ps.offset) {
-//     self.prefs.offset = ps.offset.newValue;
-//   }
-//   if (ps.timezone) {
-//     self.prefs.timezone = ps.timezone.newValue;
-//   }
-//   if (ps.offset || ps.timezone) {
-//     self.update('updated');
-//   }
-// });  
 
 const win = {
   send(type, data) {
