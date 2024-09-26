@@ -1,18 +1,13 @@
 // Import the web-ext module
 import webExt from 'web-ext';
 
-// Define the options for launching the addon
-const options = {
-  sourceDir: 'C:\\repos\\chromeleon-addons\\src\\Chameleon.app.Addons\\Assets\\addons\\foxameleon',
-};
-
-console.log('Starting web-ext with options:', JSON.stringify(options, null, 2));
-
 // Launch the addon using web-ext
 webExt.cmd.run({
-  sourceDir: options.sourceDir,
-  debugger: false,
-  //add --no-notification to avoid the notification popup
+  sourceDir: 'C:\\repos\\chromeleon-addons\\src\\Chameleon.app.Addons\\Assets\\addons\\foxameleon',
+  startUrl: ["https://www.browserleaks.com"],
+  browserConsole: true,
+  verbose: true,     // Enable verbose logging
+  devtools: true,    // Open DevTools automatically
 }).then(() => {
   console.log('Addon launched successfully!');
 }).catch((error) => {

@@ -1,7 +1,4 @@
-const { settings } = require("../settings.js");
-const { log } = require("../logger.js");
-
-const config = {
+const webglConfig = {
   noise: {
     low: 0.1,
     medium: 0.3,
@@ -9,9 +6,9 @@ const config = {
   },
 };
 
-const methods = {
+const webglMethods = {
   WebGLBuffer: async function (tab) {
-    const noiseLevel = config.noise[settings.noiseLevel];
+    const noiseLevel = webglConfig.noise[settings.noiseLevel];
     await browser.tabs.executeScript(tab.id, {
       code: `
         (function() {
@@ -49,7 +46,6 @@ const methods = {
     });
   },
   WebGLParams: async function (tab) {
-    const noiseLevel = config.noise[settings.noiseLevel];
     await browser.tabs.executeScript(tab.id, {
       code: `
         (function() {
@@ -78,7 +74,6 @@ const methods = {
     });
   },
   WebGLExtensions: async function (tab) {
-    const noiseLevel = config.noise[settings.noiseLevel];
     await browser.tabs.executeScript(tab.id, {
       code: `
         (function() {
@@ -102,26 +97,11 @@ async function applyWebglSpoofing(tab) {
   if (tab.url && tab.url.indexOf("about:") < 0 && settings.webglSpoofing) {
     log.info(`Applying WebGL spoofing for tab ${tab.id}`);
     try {
-      await methods.WebGLBuffer(tab);
-      await methods.WebGLParams(tab);
-      await methods.WebGLExtensions(tab);
+      await webglMethods.WebGLBuffer(tab);
+      await webglMethods.WebGLParams(tab);
+      await webglMethods.WebGLExtensions(tab);
     } catch (error) {
       log.error(`Failed to apply WebGL spoofing for tab ${tab.id}:`, error);
     }
   }
 }
-
-function setupTabListeners() {
-  browser.tabs.onCreated.addListener((tab) => {
-    applyWebglSpoofing(tab);
-  });
-
-  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === "loading") {
-      applyWebglSpoofing(tab);
-    }
-  });
-}
-
-// Initialize
-setupTabListeners();

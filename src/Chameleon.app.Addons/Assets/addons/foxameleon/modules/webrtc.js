@@ -1,6 +1,3 @@
-const { settings, updateSettings } = require('./settings.js');
-const { log } = require('./logger.js');
-
 const IS_FIREFOX = /Firefox/.test(navigator.userAgent) || typeof InstallTrigger !== "undefined";
 
 function handleWebRTCSettings() {
@@ -100,9 +97,3 @@ function handleWebRTCMenuClick(info) {
   updateSettings();
   handleWebRTCSettings();
 }
-
-module.exports = {
-  handleWebRTCSettings,
-  createWebRTCContextMenus,
-  handleWebRTCMenuClick
-};

@@ -70,11 +70,3 @@ async function updateSettings() {
   await browser.storage.sync.set(settings);
   settings = await browser.storage.sync.get(SETTINGS_ARRAY);
 }
-
-module.exports = {
-  SETTINGS_ARRAY,
-  settings,
-  Actions,
-  promptDictionary,
-  updateSettings
-};

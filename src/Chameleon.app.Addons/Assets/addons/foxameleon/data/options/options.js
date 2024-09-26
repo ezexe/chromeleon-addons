@@ -1,6 +1,5 @@
-import { SETTINGS_ARRAY, settingsData } from "../../modules/settings.js";
+import { SETTINGS_ARRAY, settings } from "../../modules/settings.js";
 document.addEventListener("DOMContentLoaded", async function () {
-  let settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
   const toast = document.getElementById("toast");
 
   function notify(msg) {

@@ -1,7 +1,4 @@
-const { settings } = require("../settings.js");
-const { log } = require("../logger.js");
-
-const config = {
+const fontsConfig = {
   noise: {
     low: 0.3,
     medium: 0.5,
@@ -9,7 +6,7 @@ const config = {
   },
 };
 
-const methods = {
+const fontsMethods = {
   offsetHeight: async function (tab) {
     await browser.tabs.executeScript(tab.id, {
       code: `
@@ -23,7 +20,7 @@ const methods = {
                 },
                 apply(target, self, args) {
                   const height = Math.floor(self.getBoundingClientRect().height);
-                  const noise = (Math.random() < ${config.noise[settings.noiseLevel]} ? -1 : +1) * Math.floor(Math.random() * 2);
+                  const noise = (Math.random() < ${fontsConfig.noise[settings.noiseLevel]} ? -1 : +1) * Math.floor(Math.random() * 2);
                   return height + noise;
                 },
               }
@@ -47,7 +44,7 @@ const methods = {
                 },
                 apply(target, self, args) {
                   const width = Math.floor(self.getBoundingClientRect().width);
-                  const noise = (Math.random() < ${config.noise[settings.noiseLevel]} ? -1 : +1) * Math.floor(Math.random() * 2);
+                  const noise = (Math.random() < ${fontsConfig.noise[settings.noiseLevel]} ? -1 : +1) * Math.floor(Math.random() * 2);
                   return width + noise;
                 },
               }
@@ -64,25 +61,10 @@ async function applyFontsSpoofing(tab) {
   if (tab.url.indexOf("about:") < 0 && settings.fontsSpoofing) {
     log.info(`Applying fonts spoofing for tab ${tab.id}`);
     try {
-      await methods.offsetHeight(tab);
-      await methods.offsetWidth(tab);
+      await fontsMethods.offsetHeight(tab);
+      await fontsMethods.offsetWidth(tab);
     } catch (error) {
       log.error(`Failed to apply fonts spoofing for tab ${tab.id}:`, error);
     }
   }
 }
-
-function setupTabListeners() {
-  browser.tabs.onCreated.addListener((tab) => {
-    applyFontsSpoofing(tab);
-  });
-
-  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === "loading") {
-      applyFontsSpoofing(tab);
-    }
-  });
-}
-
-// Initialize
-setupTabListeners();

@@ -1,7 +1,3 @@
-const { settings, updateSettings, Actions } = require('./settings.js');
-const { tryPrompt } = require('./prompter.js');
-const { log } = require('./logger.js');
-
 function createGeoContextMenus() {
   browser.contextMenus.create({ title: "GEO", id: "geo", contexts: ["browser_action"] });
   browser.contextMenus.create({ title: "Allow/Disallow GEO requests", id: "enabled", contexts: ["browser_action"], type: "checkbox", checked: settings.geoSpoofing, parentId: "geo" });
@@ -152,8 +148,3 @@ Example of valid formats:
     });
   });
 }
-
-module.exports = {
-  createGeoContextMenus,
-  handleGeoMenuClick
-};

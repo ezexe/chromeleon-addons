@@ -1,6 +1,5 @@
 import { log } from "../../modules/logger.js";
-import { SETTINGS_ARRAY } from "../../modules/settings.js";
-let settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
+import { SETTINGS_ARRAY, settings} from "../../modules/settings.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const toggleExtension = document.getElementById("toggle-extension");

@@ -1,6 +1,4 @@
-import { log } from "./logger.js";
-
-export function promptUser(tab, promptType) {
+function promptUser(tab, promptType) {
   return new Promise((resolve) => {
       try {
         chrome.tabs.sendMessage(tab.id, {action: promptType}, (response) => {
@@ -17,7 +15,7 @@ export function promptUser(tab, promptType) {
   });
 }
 
-export function promptUserFallback(promptType) {
+function promptUserFallback(promptType) {
   return new Promise((resolve) => {
     chrome.windows.getLastFocused({populate: true}, (window) => {
       if (window && window.tabs) {
@@ -41,7 +39,7 @@ export function promptUserFallback(promptType) {
 }
 
 // Event Listeners
-export async function tryPrompt(tab, promptType) {
+async function tryPrompt(tab, promptType) {
   let result = await promptUser(tab, promptType);
   if (result.status === "error") {
     result = await promptUserFallback(promptType);

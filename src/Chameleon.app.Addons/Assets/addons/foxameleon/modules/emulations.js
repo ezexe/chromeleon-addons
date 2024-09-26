@@ -1,8 +1,4 @@
-const { settings } = require('./settings.js');
-const { log } = require('./logger.js');
-const { offsets } = require('./offsets.js');
-
-async function applyOverrides(tab) {
+async function applyGeoTimezoneOverrides(tab) {
   try {
     if ((tab.url.indexOf("about:") < 0) && (settings.timezoneSpoofing || settings.geoSpoofing)) {
       if (tab && tab.url) {
@@ -108,22 +104,3 @@ function randomizeGeoLocation() {
     log.warn("Cannot randomizeGeo GEO", e);
   }
 }
-
-function setupTabListeners() {
-  browser.tabs.onCreated.addListener((tab) => {
-    applyOverrides(tab);
-  });
-
-  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === "loading") {
-      applyOverrides(tab);
-    }
-  });
-}
-
-module.exports = {
-  applyOverrides,
-  applyTimezoneOverride,
-  applyGeoOverride,
-  setupTabListeners
-};

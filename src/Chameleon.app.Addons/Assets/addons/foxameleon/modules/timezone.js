@@ -1,8 +1,3 @@
-const { settings, updateSettings, Actions } = require('./settings.js');
-const { tryPrompt } = require('./prompter.js');
-const { log } = require('./logger.js');
-const { offsets } = require('./offsets.js');
-
 function createTimezoneContextMenus() {
   browser.contextMenus.create({ title: "Timezone", id: "timezone-menu", contexts: ["browser_action"] }, () => browser.runtime.lastError);
   browser.contextMenus.create({ title: "Check my Current Timezone", id: "check-timezone", contexts: ["browser_action"], parentId: "timezone-menu" }, () => browser.runtime.lastError);
@@ -36,8 +31,3 @@ async function handleTimezoneMenuClick(info, tab) {
   }
   updateSettings();
 }
-
-module.exports = {
-  createTimezoneContextMenus,
-  handleTimezoneMenuClick
-};

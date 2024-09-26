@@ -1,7 +1,4 @@
-const { settings } = require("./modules/settings.js");
-const { log } = require("./modules/logger.js");
-
-const config = {
+const rectsConfig = {
   noise: {
     DOMRect: 0.00000001,
     DOMRectReadOnly: 0.000001,
@@ -14,10 +11,11 @@ const config = {
     DOMRectReadOnly: ["top", "right", "bottom", "left"],
   },
 };
-const methods = {
-  DOMRect: async function (e) {
+const rectsMethods = {
+  DOMRect: async function (tab, e) {
     await browser.tabs.executeScript(tab.id, {
       code: ` (function() {
+        let e = "${e}";
         Object.defineProperty(DOMRect.prototype, e, {
           get: new Proxy(
             Object.getOwnPropertyDescriptor(DOMRect.prototype, e).get,
@@ -31,10 +29,10 @@ const methods = {
                   result *
                   (1 +
                     (Math.random() <
-                    ${config.noise[settings.noiseLevel]}
+                    ${rectsConfig.noise[settings.noiseLevel]}
                       ? -1
                       : +1) *
-                      ${config.noise.DOMRect});
+                      ${rectsConfig.noise.DOMRect});
                 return _result;
               },
             }
@@ -48,9 +46,10 @@ const methods = {
       runAt: "document_start",
     });
   },
-  DOMRectReadOnly: async function (e) {
+  DOMRectReadOnly: async function (tab, e) {
     await browser.tabs.executeScript(tab.id, {
       code: `(function() {
+        let e = "${e}";
         Object.defineProperty(DOMRectReadOnly.prototype, e, {
           get: new Proxy(
             Object.getOwnPropertyDescriptor(DOMRectReadOnly.prototype, e).get,
@@ -64,10 +63,10 @@ const methods = {
                   result *
                   (1 +
                     (Math.random() <
-                    ${config.noise[settings.noiseLevel]}
+                    ${rectsConfig.noise[settings.noiseLevel]}
                       ? -1
                       : +1) *
-                      ${config.noise.DOMRectReadOnly});
+                      ${rectsConfig.noise.DOMRectReadOnly});
                 return _result;
               },
             }
@@ -87,31 +86,14 @@ async function applyClientRectsSpoofing(tab) {
   if (tab.url.indexOf("about:") < 0 && settings.clientRectsSpoofing) {
     log.info(`Applying applyClientRectsSpoofing spoofing for tab ${tab.id}`);
     try {
-      methods.DOMRect();
-      methods.DOMRectReadOnly();
+        for (let i = 0; i < rectsConfig.metrics.DOMRect.length; i++) {
+          rectsMethods.DOMRect(tab, rectsConfig.metrics.DOMRect[i]);
+        }
+        for (let i = 0; i < rectsConfig.metrics.DOMRectReadOnly.length; i++) {
+          rectsMethods.DOMRectReadOnly(tab, rectsConfig.metrics.DOMRectReadOnly[i]);
+        }
     } catch (error) {
       log.error(`Failed to apply canvas spoofing for tab ${tab.id}:`, error);
     }
   }
 }
-
-function setupTabListeners() {
-  browser.tabs.onCreated.addListener((tab) => {
-    applyClientRectsSpoofing(tab);
-  });
-
-  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === "loading") {
-      applyClientRectsSpoofing(tab);
-    }
-  });
-}
-
-// Initialize
-setupTabListeners();
-
-module.exports = {
-  applyClientRectsSpoofing,
-};
-
-module.exports = applyClientRectsSpoofing;

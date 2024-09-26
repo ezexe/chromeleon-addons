@@ -1,10 +1,3 @@
-const { settings, updateSettings } = require('./modules/settings.js');
-const { setLogLevel, log } = require('./modules/logger.js');
-const { createWebRTCContextMenus, handleWebRTCMenuClick, handleWebRTCSettings } = require('./modules/webrtc.js');
-const { createGeoContextMenus, handleGeoMenuClick } = require('./modules/geolocation.js');
-const { createTimezoneContextMenus, handleTimezoneMenuClick } = require('./modules/timezone.js');
-const { applyOverrides, setupTabListeners } = require('./modules/emulations.js');
-
 async function OnLoad() {
   await browser.storage.sync.set(settings);
     
@@ -16,11 +9,28 @@ async function OnLoad() {
 }
 OnLoad();
 
-browser.tabs.query({}, (tabs) => {
-  tabs.forEach((tab) => {
-    applyOverrides(tab);
+function setupTabListeners() {
+  browser.tabs.onCreated.addListener((tab) => {
+    applyWebglSpoofing(tab);
+    applyCanvasSpoofing(tab);
+    applyClientRectsSpoofing(tab);
+    applyFontsSpoofing(tab);
+    applyGeoTimezoneOverrides(tab);
   });
-});
+
+  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "loading") {
+      applyWebglSpoofing(tab);
+      applyCanvasSpoofing(tab);
+      applyClientRectsSpoofing(tab);
+      applyFontsSpoofing(tab);
+      applyGeoTimezoneOverrides(tab);
+    }
+  });
+}
+
+// Initialize
+setupTabListeners();
 
 async function handleContextMenuClick(info, tab) {
   if (info.menuItemId === "test") {
@@ -37,11 +47,6 @@ async function handleContextMenuClick(info, tab) {
   }
   
   await browser.storage.sync.set(settings);
-  browser.tabs.query({}, (tabs) => {
-    tabs.forEach((tab) => {
-      applyOverrides(tab);
-    });
-  });
 }
 
 browser.contextMenus.onClicked.addListener(handleContextMenuClick);
@@ -51,7 +56,5 @@ browser.storage.onChanged.addListener(async (changes, _) => {
   handleWebRTCSettings();
   log.info("Settings updated");
 });
-
-setupTabListeners();
 
 log.info("Background script loaded");
