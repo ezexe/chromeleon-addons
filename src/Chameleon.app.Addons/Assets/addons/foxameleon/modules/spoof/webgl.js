@@ -85,12 +85,12 @@ const methods = {
 };
 
 async function applyWebglSpoofing(tab) {
-  if (tab.url.indexOf("about:") < 0 && settings.webglSpoofing) {
-    log.info(\`Applying WebGL spoofing for tab \${tab.id}\`);
+  if (tab.url && tab.url.indexOf("about:") < 0 && settings.webglSpoofing) {
+    log.info(`Applying WebGL spoofing for tab ${tab.id}`);
     try {
       await methods.spoofWebGL(tab);
     } catch (error) {
-      log.error(\`Failed to apply WebGL spoofing for tab \${tab.id}:\`, error);
+      log.error(`Failed to apply WebGL spoofing for tab ${tab.id}:`, error);
     }
   }
 }
