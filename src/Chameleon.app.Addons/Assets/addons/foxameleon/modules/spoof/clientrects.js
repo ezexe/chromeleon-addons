@@ -14,6 +14,9 @@ const rectsConfig = {
 const rectsMethods = {
   DOMRect: async function (tab, e) {
     await browser.tabs.executeScript(tab.id, {
+      allFrames: true,
+      matchAboutBlank: true,
+      runAt: "document_start",
       code: ` (function() {
         let e = "${e}";
         Object.defineProperty(DOMRect.prototype, e, {
@@ -43,7 +46,6 @@ const rectsMethods = {
         });  
         })();
         `,
-      runAt: "document_start",
     });
   },
   DOMRectReadOnly: async function (tab, e) {

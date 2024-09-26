@@ -1,10 +1,14 @@
 async function applyCanvasSpoofing(tab) {
   try {
+        let seed = Math.random() * 0.00000001;
+        let randObjName = String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
+          Math.random()
+            .toString(36)
+            .substring(Math.floor(Math.random() * 5) + 5);
     if (tab.url.indexOf("about:") < 0 && settings.canvasProtection) {
       await browser.tabs.executeScript(tab.id, {
         code: `
           (function() {
-
         let proto = HTMLCanvasElement.prototype ? HTMLCanvasElement.prototype : HTMLCanvasElement.__proto__;
         //
         proto.toDataURL = new Proxy(proto.toDataURL, {
@@ -114,7 +118,9 @@ async function applyCanvasSpoofing(tab) {
         });
           })();
         `,
-        runAt: "document_start"
+        runAt: "document_start",
+        allFrames: true,
+        matchAboutBlank: true,
       });
       log.info(`Canvas spoofing applied for tab ${tab.id}`);
     }

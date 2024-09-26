@@ -11,6 +11,8 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "web-ext": "^8.3.0"
+        "sinon": "^8.1.1",
+        "web-ext": "^8.3.0",
+        "webextensions-jsdom": "^1.4.1"
     }
 }

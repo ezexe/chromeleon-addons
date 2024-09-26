@@ -26,38 +26,47 @@ async function applyTimezoneOverride(tab) {
     timezoneId = getRandomTimezone();
   }
   
-  // Firefox doesn't support Emulation API, so we'll need to use content scripts
-  // to override timezone and locale
-  await browser.tabs.executeScript(tab.id, {
-    code: `
-      Object.defineProperty(Intl, 'DateTimeFormat', {
-        value: new Proxy(Intl.DateTimeFormat, {
-          construct(target, args) {
-            if (args.length > 0) {
-              args[1] = Object.assign({}, args[1], { timeZone: '${timezoneId}' });
-            } else {
-              args.push({ timeZone: '${timezoneId}' });
-            }
-            return new target(...args);
-          }
-        })
-      });
-      Object.defineProperty(Date.prototype, 'toLocaleString', {
-        value: new Proxy(Date.prototype.toLocaleString, {
-          apply(target, thisArg, args) {
-            if (args.length > 0) {
-              args[1] = Object.assign({}, args[1], { timeZone: '${timezoneId}' });
-            } else {
-              args.push({ timeZone: '${timezoneId}' });
-            }
-            return target.apply(thisArg, args);
-          }
-        })
-      });
-    `
+  try{
+  await browser.contentScripts.register({
+    allFrames: true,
+    matchAboutBlank: true,
+    matches: ['http://*/*', 'https://*/*'],
+    runAt: 'document_start',
+    js: [
+      {
+        code: `
+          Object.defineProperty(Intl, 'DateTimeFormat', {
+            value: new Proxy(Intl.DateTimeFormat, {
+              construct(target, args) {
+                if (args.length > 0) {
+                  args[1] = Object.assign({}, args[1], { timeZone: '${timezoneId}' });
+                } else {
+                  args.push({ timeZone: '${timezoneId}' });
+                }
+                return new target(...args);
+              }
+            })
+          });
+          Object.defineProperty(Date.prototype, 'toLocaleString', {
+            value: new Proxy(Date.prototype.toLocaleString, {
+              apply(target, thisArg, args) {
+                if (args.length > 0) {
+                  args[1] = Object.assign({}, args[1], { timeZone: '${timezoneId}' });
+                } else {
+                  args.push({ timeZone: '${timezoneId}' });
+                }
+                return target.apply(thisArg, args);
+              }
+            })
+          });
+        `
+      },
+    ],
   });
-  
   log.info(`Timezone set to ${timezoneId} for tab ${tab.id}`);
+} catch (error) {
+  log.error(`Failed to apply timezone spoofing for tab ${tab.id}:`, error);
+}
 }
 
 function getRandomTimezone() {
