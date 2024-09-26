@@ -1,39 +1,66 @@
 import logger, {setLogLevel, log} from './modules/logger.js';
 import { SETTINGS_ARRAY } from './modules/settings.js';
 // uncomment the following line to enable running addon through javascript
-let extSettings = {
- enabled: true,
- webglSpoofing: true,
- canvasProtection: true,
- clientRectsSpoofing: true,
- fontsSpoofing: true,
- geoSpoofing: true,
- timezoneSpoofing: true,
- dAPI: true,
- eMode: 'disable_non_proxied_udp',
- dMode: 'default_public_interface_only',
- noiseLevel: 'medium',
- debug: 3,
-};
-
 // isFirefox ? 'proxy_only' : 'disable_non_proxied_udp'
 const IS_FIREFOX =
   /Firefox/.test(navigator.userAgent) || typeof InstallTrigger !== "undefined";
 
 // comment the following line to enable running addon through javascript
 
+chrome.runtime.onInstalled.addListener(function(details) {
+  if (details.reason === "install") {
+    chrome.storage.sync.set({
+      enabled: true,
+      webglSpoofing: true,
+      canvasProtection: true,
+      clientRectsSpoofing: true,
+      fontsSpoofing: true,
+      geoSpoofing: true,
+      timezoneSpoofing: true,
+      dAPI: true,
+      eMode: 'disable_non_proxied_udp',
+      dMode: 'default_public_interface_only',
+      noiseLevel: "medium",
+      debug: true,
+    });
+  }
+});
+
 /* Method to execute onload events */
-async function OnLoad() {
+async function OnLoad(settings) {
     // await chrome.storage.sync.set(settings);
     createContextMenus();  // To create global context menus
-    createGeoContextMenus(); // To create GEO context menus
-    createTimezoneContextMenus(); // To create timezone context menus
-    updateContextMenus(); // To update global context menus
+    if(settings.geoSpoofing){ createGeoContextMenus(); } // To create GEO context menus
+    if(settings.timezoneSpoofing){ createTimezoneContextMenus(); } // To create timezone context menus
+    // updateContextMenus(); // To update global context menus
     updateWebRTCProtection(); // To update webrtc protection
     log.info('OnLoad');
 }
 /* when background Loads */
-OnLoad();
+chrome.storage.sync.get(SETTINGS_ARRAY, function(settings) {
+  // Attach debugger to existing tabs
+  if(settings.enabled)
+  {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+          applyOverrides(tab);
+      });
+    });
+  
+    // Attach debugger to new tabs
+    chrome.tabs.onCreated.addListener((tab) => {
+        applyOverrides(tab);
+    });
+    
+    // Handle tab updates (for when a new URL is loaded in an existing tab)
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      if (changeInfo.status === 'loading') {
+        applyOverrides(tab);
+      }
+    });
+  }
+  OnLoad(settings);
+});
 // ---------------------------------------
 
 /* Timezone Offset */
@@ -41,50 +68,59 @@ let offsets = {"Pacific/Niue":{"offset":-660,"msg":{"standard":"Niue Time"}},"Pa
 
 /* To override browser settings using debugger*/
 async function applyOverrides(tab) {
-  try {
+  try 
+  {
     await debuggerStatus(tab.id, async function(debugStatus)
     {
       if(debugStatus){ chrome.debugger.detach({tabId: tab.id}); }
       if((tab && tab.url && tab.url.indexOf("chrome://") < 0))
       {
-        chrome.storage.local.get({
-          timezone: 'Etc/GMT',
-          random: false,
-          myIP: false,
-          locale: 'en-US'
-        }, async prefs => {
-          await chrome.debugger.attach({tabId: tab.id}, '1.3');
-          
-          let timezoneId = prefs.timezone;
-          if(prefs.myIP){ timezoneId = Intl.DateTimeFormat().resolvedOptions().timeZone; }
-          else if(prefs.random)
+        chrome.storage.sync.get(SETTINGS_ARRAY, async function(settings) 
+        {
+          if(settings.timezoneSpoofing || settings.geoSpoofing){ await chrome.debugger.attach({tabId: tab.id}, '1.3'); }
+          if(settings.timezoneSpoofing)
           {
-            const timeZoneKeys = Object.keys(offsets);
-            const randomKey = timeZoneKeys[Math.floor(Math.random() * timeZoneKeys.length)];
-            timezoneId = randomKey; 
+            chrome.storage.sync.get({
+              timezone: 'Etc/GMT',
+              random: false,
+              myIP: false,
+              locale: 'en-US'
+            }, async prefs => {            
+              let timezoneId = prefs.timezone;
+              if(prefs.myIP){ timezoneId = Intl.DateTimeFormat().resolvedOptions().timeZone; }
+              else if(prefs.random)
+              {
+                const timeZoneKeys = Object.keys(offsets);
+                const randomKey = timeZoneKeys[Math.floor(Math.random() * timeZoneKeys.length)];
+                timezoneId = randomKey; 
+              }
+              await chrome.debugger.sendCommand({tabId: tab.id}, 'Emulation.setTimezoneOverride', {
+                timezoneId: timezoneId
+              });
+              await chrome.debugger.sendCommand({tabId: tab.id}, 'Emulation.setLocaleOverride', {
+                locale: prefs.locale
+              });
+              console.log(`Debugger attached and overrides applied for tab ${tab.id}`);
+              return true;
+            });
           }
-          await chrome.debugger.sendCommand({tabId: tab.id}, 'Emulation.setTimezoneOverride', {
-            timezoneId: timezoneId
-          });
-          await chrome.debugger.sendCommand({tabId: tab.id}, 'Emulation.setLocaleOverride', {
-            locale: prefs.locale
-          });
-          console.log(`Debugger attached and overrides applied for tab ${tab.id}`);
-          return true;
-        });
-        chrome.storage.local.get({
-          latitude: -1,
-          longitude: -1,
-          accuracy: 64.0999,
-          enabled: true,
-          randomize: false,
-          bypass: []
-        }, async prefs => {
-          await chrome.debugger.sendCommand({tabId: tab.id}, 'Emulation.setGeolocationOverride', {
-            latitude: prefs.latitude,
-            longitude: prefs.longitude,
-            accuracy: prefs.accuracy
-          });
+          if(settings.geoSpoofing)
+          {
+            chrome.storage.sync.get({
+              latitude: -1,
+              longitude: -1,
+              accuracy: 64.0999,
+              enabled: true,
+              randomize: false,
+              bypass: []
+            }, async prefs => {
+              await chrome.debugger.sendCommand({tabId: tab.id}, 'Emulation.setGeolocationOverride', {
+                latitude: prefs.latitude,
+                longitude: prefs.longitude,
+                accuracy: prefs.accuracy
+              });
+            });
+          }
         });
       }
     });
@@ -105,35 +141,23 @@ async function debuggerStatus(tabId,callback)
   });
 }
 
-// Attach debugger to existing tabs
-chrome.tabs.query({}, (tabs) => {
-  tabs.forEach((tab) => {
-      applyOverrides(tab);
-  });
-});
-
-// Attach debugger to new tabs
-chrome.tabs.onCreated.addListener((tab) => {
-    applyOverrides(tab);
-});
-
-// Handle tab updates (for when a new URL is loaded in an existing tab)
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'loading') {
-    applyOverrides(tab);
-  }
-});
-
 // Detach debugger when tab is closed
 chrome.tabs.onRemoved.addListener((tabId) => {
   chrome.debugger.detach({tabId: tabId});
 });
 
 /* To update Global Context Menus */
-function updateContextMenus() {
-  chrome.contextMenus.update("dAPI", { checked: extSettings.dAPI });
-  chrome.contextMenus.update(extSettings.eMode, { checked: true });
-  chrome.contextMenus.update(extSettings.dMode, { checked: true });
+function updateContextMenus() 
+{
+  chrome.storage.sync.get(SETTINGS_ARRAY, function(settings) 
+  {
+    chrome.contextMenus.update("dAPI", { checked: settings.dAPI });
+    chrome.contextMenus.update(settings.eMode, { checked: true });
+    chrome.contextMenus.update(settings.dMode, { checked: true });
+
+    if(!settings.geoSpoofing){ chrome.contextMenus.remove("geo"); }else{ createGeoContextMenus(); }
+    if(!settings.timezoneSpoofing){ chrome.contextMenus.remove("timezone-menu"); }else{ createTimezoneContextMenus(); }
+  });
 }
 
 /* To create Global Context Menus */
@@ -188,7 +212,7 @@ async function createContextMenus() {
 
 //Geo Context Menus
 async function createGeoContextMenus() {
-  chrome.storage.local.get({
+  chrome.storage.sync.get({
     enabled: true,
     history: [],
     randomize: false,
@@ -378,165 +402,171 @@ async function createTimezoneContextMenus()
 // On context menu click Events
 async function handleContextMenuClick(info, tab) 
 {
-  if (info.menuItemId === "test") {
-    chrome.tabs.create({
-      url: "https://webbrowsertools.com/ip-address/",
-      index: tab.index + 1,
-    });
-  } 
-  else if (info.menuItemId === 'reset') {
-    chrome.storage.local.set({
-      latitude: -1,
-      longitude: -1
-    });
-  }
-  else if (info.menuItemId === 'enabled') {
-    chrome.storage.local.set({
-      enabled: info.checked
-    });
-  }
-  else if (info.menuItemId === 'geo-test') {
-    chrome.tabs.create({
-      url: 'https://webbrowsertools.com/geolocation/',
-      index: tab.index + 1
-    });
-  }
-  else if (info.menuItemId.startsWith('set:')) {
-    const [latitude, longitude] = info.menuItemId.slice(4).split('|').map(Number);
-    chrome.storage.local.set({
-      latitude,
-      longitude
-    });
-  }
-  else if (info.menuItemId === 'randomize:false') {
-    chrome.storage.local.set({randomize: false});
-  }
-  else if (info.menuItemId.startsWith('randomize:')) {
-    chrome.storage.local.set({
-      randomize: parseFloat(info.menuItemId.slice(10))
-    });
-  }
-  else if (info.menuItemId.startsWith('accuracy:')) {
-    chrome.storage.local.set({
-      accuracy: parseFloat(info.menuItemId.slice(9))
-    });
-  }
-  else if (info.menuItemId === 'add-exception') {
-    const url = tab.url;
+  chrome.storage.sync.get(SETTINGS_ARRAY, async function(settings) 
+  {
+    if (info.menuItemId === "test") {
+      chrome.tabs.create({
+        url: "https://webbrowsertools.com/ip-address/",
+        index: tab.index + 1,
+      });
+    } 
+    else if (info.menuItemId === 'reset') {
+      chrome.storage.sync.set({
+        latitude: -1,
+        longitude: -1
+      });
+    }
+    else if (info.menuItemId === 'enabled') {
+      chrome.storage.sync.set({
+        enabled: info.checked
+      });
+    }
+    else if (info.menuItemId === 'geo-test') {
+      chrome.tabs.create({
+        url: 'https://webbrowsertools.com/geolocation/',
+        index: tab.index + 1
+      });
+    }
+    else if (info.menuItemId.startsWith('set:')) {
+      const [latitude, longitude] = info.menuItemId.slice(4).split('|').map(Number);
+      chrome.storage.sync.set({
+        latitude,
+        longitude
+      });
+    }
+    else if (info.menuItemId === 'randomize:false') {
+      chrome.storage.sync.set({randomize: false});
+    }
+    else if (info.menuItemId.startsWith('randomize:')) {
+      chrome.storage.sync.set({
+        randomize: parseFloat(info.menuItemId.slice(10))
+      });
+    }
+    else if (info.menuItemId.startsWith('accuracy:')) {
+      chrome.storage.sync.set({
+        accuracy: parseFloat(info.menuItemId.slice(9))
+      });
+    }
+    else if (info.menuItemId === 'add-exception') {
+      const url = tab.url;
 
-    if (url.startsWith('http')) {
-      chrome.storage.local.get({
-        bypass: []
-      }, prefs => {
-        const d = tld.getDomain(tab.url);
+      if (url.startsWith('http')) {
+        chrome.storage.sync.get({
+          bypass: []
+        }, prefs => {
+          const d = tld.getDomain(tab.url);
 
-        const hosts = new Set(prefs.bypass);
-        hosts.add(d);
-        hosts.add('*.' + d);
-        console.info('adding', d, '*.' + d, 'to the exception list');
+          const hosts = new Set(prefs.bypass);
+          hosts.add(d);
+          hosts.add('*.' + d);
+          console.info('adding', d, '*.' + d, 'to the exception list');
 
-        chrome.storage.local.set({
-          bypass: [...hosts]
+          chrome.storage.sync.set({
+            bypass: [...hosts]
+          });
+        });
+      }
+    }
+    else if (info.menuItemId === 'remove-exception') {
+      const url = tab.url;
+
+      if (url.startsWith('http')) {
+        chrome.storage.sync.get({
+          bypass: []
+        }, prefs => {
+          const d = tld.getDomain(tab.url);
+
+          console.info('removing', d, '*.' + d, 'from the exception list');
+
+          chrome.storage.sync.set({
+            bypass: prefs.bypass.filter(m => m !== d && m !== '*.' + d)
+          });
+        });
+      }
+    }
+    else if (info.menuItemId === 'exception-editor') 
+    {
+      const msg = `Insert one hostname per line. Press the "Save List" button to update the list.
+
+  Example of valid formats:
+
+    example.com
+    *.example.com
+    https://example.com/*
+    *://*.example.com/*`;
+      chrome.windows.getCurrent(win => {
+        chrome.windows.create({
+          url: 'data/editor/index.html?msg=' + encodeURIComponent(msg) + '&storage=bypass',
+          width: 600,
+          height: 600,
+          left: win.left + Math.round((win.width - 600) / 2),
+          top: win.top + Math.round((win.height - 600) / 2),
+          type: 'popup'
         });
       });
     }
-  }
-  else if (info.menuItemId === 'remove-exception') {
-    const url = tab.url;
+    if (info.menuItemId === 'update-timezone') {
+      chrome.storage.sync.set({
+        myIP: true,
+      });
 
-    if (url.startsWith('http')) {
-      chrome.storage.local.get({
-        bypass: []
-      }, prefs => {
-        const d = tld.getDomain(tab.url);
-
-        console.info('removing', d, '*.' + d, 'from the exception list');
-
-        chrome.storage.local.set({
-          bypass: prefs.bypass.filter(m => m !== d && m !== '*.' + d)
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+            applyOverrides(tab);
         });
       });
     }
-  }
-  else if (info.menuItemId === 'exception-editor') 
-  {
-    const msg = `Insert one hostname per line. Press the "Save List" button to update the list.
-
-Example of valid formats:
-
-  example.com
-  *.example.com
-  https://example.com/*
-  *://*.example.com/*`;
-    chrome.windows.getCurrent(win => {
-      chrome.windows.create({
-        url: 'data/editor/index.html?msg=' + encodeURIComponent(msg) + '&storage=bypass',
-        width: 600,
-        height: 600,
-        left: win.left + Math.round((win.width - 600) / 2),
-        top: win.top + Math.round((win.height - 600) / 2),
-        type: 'popup'
+    else if (info.menuItemId === 'check-timezone') {
+      chrome.tabs.create({
+        url: 'https://webbrowsertools.com/timezone/'
       });
-    });
-  }
-  if (info.menuItemId === 'update-timezone') {
-    chrome.storage.local.set({
-      myIP: true,
-    });
-
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-          applyOverrides(tab);
-      });
-    });
-  }
-  else if (info.menuItemId === 'check-timezone') {
-    chrome.tabs.create({
-      url: 'https://webbrowsertools.com/timezone/'
-    });
-  }
-  else 
-  {
-    if (info.menuItemId === "dAPI") {
-      extSettings.dAPI = info.checked;
-    } else if (
-      ["disable_non_proxied_udp", "proxy_only"].includes(info.menuItemId)
-    ) {
-      extSettings.eMode = info.menuItemId;
-    } else if (
-      [
-        "default_public_interface_only",
-        "default_public_and_private_interfaces",
-      ].includes(info.menuItemId)
-    ) {
-      extSettings.dMode = info.menuItemId;
     }
-  }
-
+    else 
+    {
+      if (info.menuItemId === "dAPI") {
+        settings.dAPI = info.checked;
+      } else if (
+        ["disable_non_proxied_udp", "proxy_only"].includes(info.menuItemId)
+      ) {
+        settings.eMode = info.menuItemId;
+      } else if (
+        [
+          "default_public_interface_only",
+          "default_public_and_private_interfaces",
+        ].includes(info.menuItemId)
+      ) {
+        settings.dMode = info.menuItemId;
+      }
+    }
     await chrome.storage.sync.set(settings);
+  });
 }
 
-function updateWebRTCProtection() {
-  const value = (extSettings.enabled && extSettings.dAPI) ? extSettings.eMode : extSettings.dMode;
-  chrome.privacy.network.webRTCIPHandlingPolicy.clear({}, () => {
-    chrome.privacy.network.webRTCIPHandlingPolicy.set({ value }, () => {
-      chrome.privacy.network.webRTCIPHandlingPolicy.get({}, (s) => {
-        let path = "/data/icons/";
-        let title = "WebRTC Protection is On";
+function updateWebRTCProtection() 
+{
+  chrome.storage.sync.get(SETTINGS_ARRAY, function(settings) 
+  {
+    const value = (settings.enabled && settings.dAPI) ? settings.eMode : settings.dMode;
+    chrome.privacy.network.webRTCIPHandlingPolicy.clear({}, () => {
+      chrome.privacy.network.webRTCIPHandlingPolicy.set({ value }, () => {
+        chrome.privacy.network.webRTCIPHandlingPolicy.get({}, (s) => {
+          let path = "/data/icons/";
+          let title = "WebRTC Protection is On";
 
-        if (s.value !== value) {
-          path += "red/";
-          title =
-            "WebRTC access cannot be changed. It is controlled by another extension";
-        } else if (extSettings.enabled === false) {
-          path += "disabled/";
-          title = "WebRTC Protection is Off";
-        }
+          if (s.value !== value) {
+            path += "red/";
+            title =
+              "WebRTC access cannot be changed. It is controlled by another extension";
+          } else if (settings.enabled === false) {
+            path += "disabled/";
+            title = "WebRTC Protection is Off";
+          }
 
-        chrome.action.setIcon({
-          path: { 16: path + "16.png", 32: path + "32.png" },
+          chrome.action.setIcon({
+            path: { 16: path + "16.png", 32: path + "32.png" },
+          });
+          chrome.action.setTitle({ title });
         });
-        chrome.action.setTitle({ title });
       });
     });
   });
@@ -547,45 +577,49 @@ function updateWebRTCProtection() {
 chrome.contextMenus.onClicked.addListener(handleContextMenuClick);
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  for (let key in changes) {
-    settings[key] = changes[key].newValue;
-  }
-  updateContextMenus();
-  updateWebRTCProtection();
-  if (changes.history) {
-    chrome.storage.local.get({
-      latitude: -1,
-      longitude: -1
-    }, async prefs => {
-      for (const [a, b] of changes.history.oldValue || []) {
-        await chrome.contextMenus.remove('set:' + a + '|' + b);
-      }
-      for (const [a, b] of changes.history.newValue || []) {
-        await chrome.contextMenus.create({
-          title: a + ', ' + b,
-          id: 'set:' + a + '|' + b,
-          contexts: ['action'],
-          parentId: 'history',
-          type: 'radio',
-          checked: a === prefs.latitude && b === prefs.longitude
+  chrome.storage.sync.get(SETTINGS_ARRAY, function(settings) 
+  {
+    for (let key in changes) {
+      settings[key] = changes[key].newValue;
+    }
+    updateContextMenus();
+    updateWebRTCProtection();
+    if (changes.history) 
+    {
+      chrome.storage.sync.get({
+        latitude: -1,
+        longitude: -1
+      }, async prefs => {
+        for (const [a, b] of changes.history.oldValue || []) {
+          await chrome.contextMenus.remove('set:' + a + '|' + b);
+        }
+        for (const [a, b] of changes.history.newValue || []) {
+          await chrome.contextMenus.create({
+            title: a + ', ' + b,
+            id: 'set:' + a + '|' + b,
+            contexts: ['action'],
+            parentId: 'history',
+            type: 'radio',
+            checked: a === prefs.latitude && b === prefs.longitude
+          });
+        }
+        chrome.contextMenus.update('history', {
+          visible: changes.history.newValue.length !== 0
         });
-      }
-      chrome.contextMenus.update('history', {
-        visible: changes.history.newValue.length !== 0
       });
-    });
-  }
-  else if (changes.latitude || changes.longitude) {
-    chrome.storage.local.get({
-      latitude: -1,
-      longitude: -1
-    }, prefs => {
-      chrome.contextMenus.update('set:' + prefs.latitude + '|' + prefs.longitude, {
-        checked: true
+    }
+    else if (changes.latitude || changes.longitude) {
+      chrome.storage.sync.get({
+        latitude: -1,
+        longitude: -1
+      }, prefs => {
+        chrome.contextMenus.update('set:' + prefs.latitude + '|' + prefs.longitude, {
+          checked: true
+        });
       });
-    });
-  }
-  log.info('Settings updated');
+    }
+    log.info('Settings updated');
+  });
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -648,8 +682,8 @@ async function handleGetSettings(sendResponse) {
       logger('info', 'Initializing settings:', settings);
       updateContentScripts(settings);
     });
-    // extSettings.data = await chrome.storage.sync.get(SETTINGS_ARRAY);
-    // sendResponse(extSettings.data);
+    // settings.data = await chrome.storage.sync.get(SETTINGS_ARRAY);
+    // sendResponse(settings.data);
   } catch (error) {
     logger('error', "Error getting settings", error);
     sendResponse({ error: "Failed to get settings" });

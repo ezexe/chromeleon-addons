@@ -538,12 +538,14 @@
     logger.log("Settings loaded");
     if (!settings.enabled) return;
     // Spoofing of fonts
-    if (settings.fontsSpoofing) {
+    if (settings.fontsSpoofing) 
+    {
       config.fonts.offsetHeight(HTMLElement);
       config.fonts.offsetWidth(HTMLElement);
     }
     // Spoofing of WebGLRenderingContext and WebGL2RenderingContext
-    if (settings.webglSpoofing) {
+    if (settings.webglSpoofing) 
+    {
       [WebGLRenderingContext, WebGL2RenderingContext].forEach((context) => {
         config.webgl.buffer(context);
         // config.webgl.parameter(context);
