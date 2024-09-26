@@ -1,4 +1,5 @@
-const { settings } = require("./settings.js");
+const { settings } = require("./modules/settings.js");
+const { log } = require("./modules/logger.js");
 
 const glspoof = {
   random: {
@@ -218,4 +219,6 @@ const webglSpoofing = {
   },
 };
 
-module.exports = webglSpoofing;
+module.exports = {
+  webglSpoofing,
+};
