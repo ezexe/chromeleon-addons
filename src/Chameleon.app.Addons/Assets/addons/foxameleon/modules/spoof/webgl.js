@@ -10,44 +10,11 @@ const config = {
 };
 
 const methods = {
-  spoofWebGL: async function (tab) {
+  WebGLBuffer: async function (tab) {
     const noiseLevel = config.noise[settings.noiseLevel];
     await browser.tabs.executeScript(tab.id, {
       code: `
         (function() {
-          if (!window.hasOwnProperty('_webglSpoofed')) {
-            window._webglSpoofed = true;
-
-            // Spoof getParameter
-            const originalGetParameter = WebGLRenderingContext.prototype.getParameter;
-            WebGLRenderingContext.prototype.getParameter = function(parameter) {
-              const spoofedParameters = {
-                3415: 0,
-                3414: 24,
-                7936: "WebKit",
-                7937: "WebGL",
-                7938: "WebGL 1.0",
-                35724: "WebGL GLSL ES",
-                37445: "Google Inc.",
-                37446: "Graphics",
-                // Add other parameters as needed
-              };
-              if (spoofedParameters.hasOwnProperty(parameter)) {
-                return spoofedParameters[parameter];
-              }
-              return originalGetParameter.apply(this, arguments);
-            };
-            
-            // Spoof getExtension
-            const originalGetExtension = WebGLRenderingContext.prototype.getExtension;
-            WebGLRenderingContext.prototype.getExtension = function(name) {
-              // Randomly nullify extensions based on noiseLevel
-              if (Math.random() < ${noiseLevel}) {
-                return null;
-              }
-              return originalGetExtension.apply(this, arguments);
-            };
-
             // Spoof bufferData
             const originalBufferData = WebGLRenderingContext.prototype.bufferData;
             WebGLRenderingContext.prototype.bufferData = function(target, srcData, usage) {
@@ -76,7 +43,54 @@ const methods = {
               // Spoof bufferData
               WebGL2RenderingContext.prototype.bufferData = WebGLRenderingContext.prototype.bufferData;
             }
-          }
+        })();
+      `,
+      runAt: "document_start",
+    });
+  },
+  WebGLParams: async function (tab) {
+    const noiseLevel = config.noise[settings.noiseLevel];
+    await browser.tabs.executeScript(tab.id, {
+      code: `
+        (function() {
+            // Spoof getParameter
+            const originalGetParameter = WebGLRenderingContext.prototype.getParameter;
+            WebGLRenderingContext.prototype.getParameter = function(parameter) {
+              const spoofedParameters = {
+                3415: 0,
+                3414: 24,
+                7936: "WebKit",
+                7937: "WebGL",
+                7938: "WebGL 1.0",
+                35724: "WebGL GLSL ES",
+                37445: "Google Inc.",
+                37446: "Graphics",
+                // Add other parameters as needed
+              };
+              if (spoofedParameters.hasOwnProperty(parameter)) {
+                return spoofedParameters[parameter];
+              }
+              return originalGetParameter.apply(this, arguments);
+            };
+        })();
+      `,
+      runAt: "document_start",
+    });
+  },
+  WebGLExtensions: async function (tab) {
+    const noiseLevel = config.noise[settings.noiseLevel];
+    await browser.tabs.executeScript(tab.id, {
+      code: `
+        (function() {
+            // Spoof getExtension
+            const originalGetExtension = WebGLRenderingContext.prototype.getExtension;
+            WebGLRenderingContext.prototype.getExtension = function(name) {
+              // Randomly nullify extensions based on noiseLevel
+              if (Math.random() < ${noiseLevel}) {
+                return null;
+              }
+              return originalGetExtension.apply(this, arguments);
+            };
         })();
       `,
       runAt: "document_start",
@@ -88,7 +102,9 @@ async function applyWebglSpoofing(tab) {
   if (tab.url && tab.url.indexOf("about:") < 0 && settings.webglSpoofing) {
     log.info(`Applying WebGL spoofing for tab ${tab.id}`);
     try {
-      await methods.spoofWebGL(tab);
+      await methods.WebGLBuffer(tab);
+      await methods.WebGLParams(tab);
+      await methods.WebGLExtensions(tab);
     } catch (error) {
       log.error(`Failed to apply WebGL spoofing for tab ${tab.id}:`, error);
     }
