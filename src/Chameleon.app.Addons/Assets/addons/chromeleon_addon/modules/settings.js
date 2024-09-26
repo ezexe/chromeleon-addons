@@ -7,63 +7,66 @@ export const SETTINGS_ARRAY = [
   "geoSpoofing",
   "timezoneSpoofing",
   "dAPI",
+  "webRtcEnabled",
+  "randomizeTZ",
+  "randomizeGeo",
+  "noiseLevel",
   "eMode",
   "dMode",
-  "noiseLevel",
-  "debug"
+  "timezone",
+  "locale",
+  "debug",
+  "latitude",
+  "longitude",
+  "accuracy",
+  "myIP",
+  "bypass",
+  "history",
 ];
 
-class Settings {
-  constructor() {
-    this.data = {
-      enabled: true,
-      webglSpoofing: true,
-      canvasProtection: true,
-      clientRectsSpoofing: true,
-      fontsSpoofing: true,
-      geoSpoofing: true,
-      timezoneSpoofing: true,
-      dAPI: true,
-      eMode: 'disable_non_proxied_udp',
-      dMode: 'default_public_interface_only',
-      noiseLevel: "medium",
-      debug: true,
-    };
-    this.listeners = [];
-  }
+export let settings = {
+  enabled: true,
+  webglSpoofing: true,
+  canvasProtection: true,
+  clientRectsSpoofing: true,
+  fontsSpoofing: true,
+  geoSpoofing: true,
+  timezoneSpoofing: true,
+  webRtcEnabled: true,
+  dAPI: true,
+  myIP: false,
+  randomizeTZ: false,
+  randomizeGeo: false,
+  noiseLevel: "medium",
+  eMode: "disable_non_proxied_udp",
+  dMode: "default_public_interface_only",
+  timezone: "America/Los_Angeles",
+  locale: "en-US",
+  debug: 4,
+  latitude: 48.856892,
+  longitude: 2.350850,
+  accuracy: 69.96,
+  bypass: [],
+  history: [],
+};
 
-  get(key) {
-    return this.data[key];
-  }
+export const Actions = {
+  TZ_RESET: 'tz_reset',
+  GEO_RESET: 'geo_reset',
+};
 
-  set(key, value) {
-    this.data[key] = value;
-    this.notifyListeners(key, value);
+export const promptDictionary = {
+  [Actions.TZ_RESET]: {
+    promptText: "Enter a \"timezone\" value. Use https://www.timeanddate.com/time/map/ to find these values",
+    defaultInput: settings.timezone
+  },
+  [Actions.GEO_RESET]: {
+    promptText: "Enter a \"latitude\" and \"longitude\" separated by a comma. Use https://www.latlong.net/ to find these values",
+    defaultInput: `${settings.latitude}, ${settings.longitude}`
   }
+};
 
-  update(newSettings) {
-    for (const [key, value] of Object.entries(newSettings)) {
-      this.set(key, value);
-    }
-  }
-
-  addListener(listener) {
-    this.listeners.push(listener);
-  }
-
-  removeListener(listener) {
-    const index = this.listeners.indexOf(listener);
-    if (index > -1) {
-      this.listeners.splice(index, 1);
-    }
-  }
-
-  notifyListeners(key, value) {
-    for (const listener of this.listeners) {
-      listener(key, value);
-    }
-  }
+export async function updateSettings() {
+  chrome.storage.sync.set(settings);
+  settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
 }
-
-const settings = new Settings();
-export default settings;

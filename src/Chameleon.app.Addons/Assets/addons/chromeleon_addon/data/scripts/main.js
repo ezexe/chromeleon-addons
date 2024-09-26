@@ -1,14 +1,6 @@
 {
   let loaded = false;
 
-  const createLogger = () => ({
-    log: (message, ...args) => 1,
-    error: (message, ...args) => 3,
-    warn: (message, ...args) => 3,
-    info: (message, ...args) => 4,
-  });
-  const logger = createLogger();
-
   // Defining the settings object with default values
   let settings = {
     enabled: true,
@@ -18,11 +10,54 @@
     fontsSpoofing: true,
     geoSpoofing: true,
     timezoneSpoofing: true,
+    webRtcEnabled: true,
     dAPI: true,
+    myIP: false,
+    randomize: false,
+    noiseLevel: "medium",
     eMode: "disable_non_proxied_udp",
     dMode: "default_public_interface_only",
-    noiseLevel: "medium",
-    debug: true,
+    timezone: "America/Los_Angeles",
+    locale: "en-US",
+    debug: 4,
+    latitude: 48.856892,
+    longitude: 2.350850,
+    accuracy: 69.96,
+    bypass: [],
+    history: [],
+  };
+
+  const formatMessage = (level, message) => {
+    const timestamp = new Date().toISOString();
+    return `${timestamp} [Chromeleon Main.js] [${level}] ${message}`;
+  };
+
+  const log = {
+    log: (message, ...args) => {
+      if (0 <= settings.debug) {
+        console.log(formatMessage("LOG", message), ...args);
+      }
+    },
+    debug: (message, ...args) => {
+      if (1 <= settings.debug) {
+        console.debug(formatMessage("DEBUG", message), ...args);
+      }
+    },
+    info: (message, ...args) => {
+      if (2 <= settings.debug) {
+        console.info(formatMessage("INFO", message), ...args);
+      }
+    },
+    warn: (message, ...args) => {
+      if (3 <= settings.debug) {
+        console.warn(formatMessage("WARN", message), ...args);
+      }
+    },
+    error: (message, ...args) => {
+      if (4 <= settings.debug) {
+        console.error(formatMessage("ERROR", message), ...args);
+      }
+    },
   };
 
   // Session object to store spoofed values
@@ -113,7 +148,7 @@
                 }
               }
             } catch (error) {
-              logger.error("Error in bufferData spoofing", error);
+              log.error("Error in bufferData spoofing", error);
             }
             return Reflect.apply(target, self, args);
           },
@@ -249,7 +284,7 @@
                 return null;
               }
             } catch (error) {
-              logger.error("Error in getExtension spoofing", error);
+              log.error("Error in getExtension spoofing", error);
             }
             return Reflect.apply(target, self, args);
           },
@@ -360,7 +395,7 @@
                 // );
               }
             } catch (error) {
-              logger.error("Error in toDataURL spoofing", error);
+              log.error("Error in toDataURL spoofing", error);
             }
             return Reflect.apply(target, self, args);
           },
@@ -412,7 +447,7 @@
               get: Object.getOwnPropertyDescriptor(DOMRect.prototype, e).get,
             });
           } catch (e) {
-            logger.error(e);
+            log.error(e);
           }
         },
         DOMRectReadOnly: function (e) {
@@ -451,7 +486,7 @@
                 .get,
             });
           } catch (e) {
-            logger.error(e);
+            log.error(e);
           }
         },
       },
@@ -531,11 +566,11 @@
   function applySettings() {
     if (!loaded && tries < 18) {
       tries++;
-      logger.log("Settings not loaded yet");
+      log.log("Settings not loaded yet");
       window.setTimeout(applySettings, 250);
       return;
     }
-    logger.log("Settings loaded");
+    log.log("Settings loaded");
     if (!settings.enabled) return;
     // Spoofing of fonts
     if (settings.fontsSpoofing) 
@@ -555,7 +590,7 @@
     // Spoofing of CanvasRenderingContext2D
     if (settings.canvasProtection) config.canvas.toDataURL(HTMLCanvasElement);
     //
-    if (navigator.mediaDevices?.enumerateDevices) {
+    if (settings.webRtcEnabled && navigator.mediaDevices?.enumerateDevices) {
       navigator.mediaDevices.enumerateDevices = new Proxy(
         navigator.mediaDevices.enumerateDevices,
         {
@@ -569,7 +604,7 @@
       );
     }
 
-    logger.log(`Settings applied ${JSON.stringify(settings)}`);
+    log.log(`Settings applied ${JSON.stringify(settings)}`);
   }
 
   // Initialize framed settings
@@ -616,6 +651,5 @@
   applySettings();
   applyFramedSettings();
 
-  logger.log("Page context script loaded and active");
-
- }
+  log.log("Page context script loaded and active");
+}

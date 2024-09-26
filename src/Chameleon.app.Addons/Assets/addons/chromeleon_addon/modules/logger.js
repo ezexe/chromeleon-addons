@@ -1,10 +1,11 @@
 const ADDON_NAME = "Chromeleon Defender";
 
 const LOG_LEVELS = {
-  DEBUG: 0,
-  INFO: 1,
-  WARN: 2,
-  ERROR: 3,
+  LOG: 0,
+  DEBUG: 1,
+  INFO: 2,
+  WARN: 3,
+  ERROR: 4,
 };
 
 let currentLogLevel = LOG_LEVELS["DEBUG"];
@@ -15,15 +16,31 @@ const formatMessage = (level, message) => {
 };
 
 export const log = {
-  log: (level, message, ...args) => {
-    if (LOG_LEVELS[level] >= currentLogLevel) {
-      console.log(formatMessage(level, message), ...args);
+  log: (message, ...args) => {
+    if (LOG_LEVELS.DEBUG <= currentLogLevel) {
+      console.log(formatMessage("LOG", message), ...args);
     }
   },
-  error: (message, ...args) => console.log("ERROR", message, ...args),
-  warn: (message, ...args) => console.log("WARN", message, ...args),
-  info: (message, ...args) => console.log("INFO", message, ...args),
-  debug: (message, ...args) => console.log("DEBUG", message, ...args),
+  debug: (message, ...args) => {
+    if (LOG_LEVELS.DEBUG <= currentLogLevel) {
+      console.debug(formatMessage("DEBUG", message), ...args);
+    }
+  },
+  info: (message, ...args) => {
+    if (LOG_LEVELS.INFO <= currentLogLevel) {
+      console.info(formatMessage("INFO", message), ...args);
+    }
+  },
+  warn: (message, ...args) => {
+    if (LOG_LEVELS.WARN <= currentLogLevel) {
+      console.warn(formatMessage("WARN", message), ...args);
+    }
+  },
+  error: (message, ...args) => {
+    if (LOG_LEVELS.ERROR <= currentLogLevel) {
+      console.error(formatMessage("ERROR", message), ...args);
+    }
+  },
 };
 
 export default function logger(type, message, ...args) {

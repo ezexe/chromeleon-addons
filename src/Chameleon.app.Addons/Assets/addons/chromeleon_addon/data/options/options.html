@@ -3,64 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Options Page :: WebRTC Protect</title>
+  <title>Options Page :: Chromeleon</title>
   <link rel="stylesheet" type="text/css" href="options.css">
 </head>
 <body>
   <main>
-    <fieldset class="second">
-      <legend>WebRTC Protection Settings</legend>
-      <div>
-        <input type="radio" name="select" id="enabled">
-        <label for="enabled">Enabled (recommended):</label>
-        <span></span>
-        <select id="when-enabled" title="When Enabled">
-          <option value="disable_non_proxied_udp">Disable non-proxied UDP (force proxy)</option>
-          <option value="proxy_only">Only connections using TURN on a TCP connection through a proxy</option>
-        </select>
-      </div>
-      <div>
-        <input type="radio" name="select" id="disabled">
-        <label for="disabled">Disabled:</label>
-        <span></span>
-        <select id="when-disabled" title="When Disabled">
-          <option value="default_public_interface_only">Use the default public interface only</option>
-          <option value="default_public_and_private_interfaces">Use the default public interface and private interface</option>
-        </select>
-      </div>
-    </fieldset>
-    <p class="second">
-      <input type="checkbox" id="device-enum-api">
-      <label for="device-enum-api">Disable WebRTC Media Device Enumeration API</label>
-    </p>
-    <div class="two">
-      <label for="offset">Timezone</label>
-      <div class="one">
-        <select id="offset"></select>
-        <input type="text" id="user" required>
-      </div>
-      <label for="minutes">Current Offset</label>
-      <input type="number" id="minutes" required readonly>
-    </div>
-    <p class="two">
-      <input type="checkbox" id="update">
-      <label for="update">Automatically update timezone based on my IP address</label>
-      <input type="checkbox" id="random">
-      <label for="random">Pick a random time zone</label>
-    </p>
-
     <p class="fgtt">
       Can this extension protect incognito (private) mode? <span id="incognito">No</span>
       <div class="note">To enable this option in Chrome, check the "Allow in incognito" box for this extension.</div>
     </p>
     <div id="buttons">
       <input type="button" value="Factory Reset" id="reset">
-      <input type="button" value="Support Development" id="support">
-      <input type="button" value="Save Options" id="save">
       <span id="toast" aria-live="polite"></span>
     </div>
   </main>
-  <script src="../scripts/offsets.js"></script>
   <script type='module' src="options.js"></script>
 </body>
 </html>

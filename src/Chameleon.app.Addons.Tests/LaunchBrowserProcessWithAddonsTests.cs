@@ -38,6 +38,7 @@ namespace Chameleon.app.Addons.Tests
                             "--disable-field-trial-config",
                             "--disable-hyperlink-auditing",
                             "--auto-open-devtools-for-tabs",
+                            "--silent-debugger-extension-api",
                             $"--user-data-dir=\"{cachepath}\"",
                         }),
         UseShellExecute = true,
@@ -60,42 +61,43 @@ namespace Chameleon.app.Addons.Tests
     {
       var extensionType = ExtensionType.chromeleon_addon;
       var destinationPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-      var cachepath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+      var cachepath = Path.Combine(Path.GetTempPath(), "Tests");
 
-      var settingsBuilder = new StringBuilder();
+      //HashSet<KeyValuePair<string, string>> options =
+      //[
+      //  new ("enabled", "true"),
+      //  new ("webglSpoofing", "true"),
+      //  new ("canvasProtection", "true"),
+      //  new ("clientRectsSpoofing", "true"),
+      //  new ("fontsSpoofing", "true"),
+      //  new ("geoSpoofing", "true"),
+      //  new ("timezoneSpoofing", "true"),
+      //  new ("dAPI", "true"),
+      //  new ("myIP", "false"),
+      //  new ("noiseLevel", "medium"),
+      //  new ("eMode", "disable_non_proxied_udp"),
+      //  new ("dMode", "default_public_interface_only"),
+      //  new ("timezone", "America/Los_Angeles"),
+      //  new ("locale", "en-US"),
+      //  new ("debug", "3"),
+      //  new ("latitude", "37.422"),
+      //  new ("longitude", "-122.084"),
+      //  new ("accuracy", "69.96"),
+      //  new ("bypass", "[]"),
+      //  new ("history", "[]")
+      //];
 
-      _ = settingsBuilder.AppendLine("const initIt = () => {");
-      _ = settingsBuilder.AppendLine("OnLoad();");
-      _ = settingsBuilder.AppendLine("};");
-      _ = settingsBuilder.AppendLine("chrome.runtime.onInstalled.addListener(initIt);");
-      _ = settingsBuilder.AppendLine("chrome.runtime.onStartup.addListener(initIt);");
-
-      //TODO edit for ff
-      //if (theseOptions.Options.SpoofClientRects)
-      //    await AddonsUtilv1.LoadFromInternal(ExtensionDirectories[AddonsUtilv1.ClientRectsAddon]);
-
-      HashSet<KeyValuePair<string, string>> options =
-      [
-        new ("webglSpoofing", "true"),
-        new ("canvasProtection", "true"),
-        new ("clientRectsSpoofing", "true"),
-        new ("fontsSpoofing", "false"),
-        new ("dAPI", "true"),
-        new ("geoSpoofing", "true"),
-        new ("timezoneSpoofing", "true")
-      ];
-
-      _ = settingsBuilder.AppendLine("let settings = {");
-      _ = settingsBuilder.AppendLine($"enabled: true,");
-      foreach (var o in options)
-      {
-        _ = settingsBuilder.AppendLine($"{o.Key}: {o.Value},");
-      }
-      _ = settingsBuilder.AppendLine("eMode: 'disable_non_proxied_udp',"); //isFirefox ? 'proxy_only'
-      _ = settingsBuilder.AppendLine("dMode: 'default_public_interface_only',");
-      _ = settingsBuilder.AppendLine("noiseLevel: 'medium',");
-      _ = settingsBuilder.AppendLine("debug: 3");
-      _ = settingsBuilder.AppendLine("};");
+      //var settingsBuilder = new StringBuilder();
+      //_ = settingsBuilder.AppendLine("chrome.runtime.onInstalled.addListener(function (details) {");
+      //_ = settingsBuilder.AppendLine("if (details.reason === \"install\") {");
+      //_ = settingsBuilder.AppendLine(" chrome.storage.sync.set({");
+      //foreach (var o in options)
+      //{
+      //  _ = settingsBuilder.AppendLine($"{o.Key}: {o.Value},");
+      //}
+      //_ = settingsBuilder.AppendLine("});");
+      //_ = settingsBuilder.AppendLine("}");
+      //_ = settingsBuilder.AppendLine("});");
 
       try
       {
@@ -108,7 +110,7 @@ namespace Chameleon.app.Addons.Tests
         }
 
         // Act
-        await _extensionLoaderService!.LoadExtension(extensionType, destinationPath, settingsBuilder.ToString());
+        await _extensionLoaderService!.LoadExtension(extensionType, destinationPath, "let abc = 0;");
 
         // Assert
         var addonDir = Path.Combine(destinationPath, extensionType.ToString());
@@ -133,10 +135,10 @@ namespace Chameleon.app.Addons.Tests
         {
           Directory.Delete(destinationPath, true);
         }
-        if (Directory.Exists(cachepath))
-        {
-          Directory.Delete(cachepath, true);
-        }
+        //if (Directory.Exists(cachepath))
+        //{
+        //  Directory.Delete(cachepath, true);
+        //}
       }
     }
 

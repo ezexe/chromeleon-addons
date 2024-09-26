@@ -56,14 +56,16 @@
       "run_at": "document_start",
       "match_origin_as_fallback": true,
       "js": ["data/scripts/main.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["data/scripts/content-script.js"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "modules/*.js",
-        "data/scripts/isolated.js",
-        "spoof-script.js"
+        "modules/*.js"
       ],
       "matches": ["<all_urls>"]
     }
