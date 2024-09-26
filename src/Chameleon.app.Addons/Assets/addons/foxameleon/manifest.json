@@ -41,6 +41,7 @@
       "modules/offsets.js",
       "modules/prompter.js",
       "modules/spoof/canvas.js",
+      "modules/spoof/clientrects.js",
       "background.js",
       "background-canvas.js"
     ]
