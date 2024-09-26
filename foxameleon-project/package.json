@@ -1,0 +1,19 @@
+{
+    "name": "foxameleon-project",
+    "version": "1.0.0",
+    "description": "A Node.js project to launch the foxameleon addon",
+    "main": "src/index.js",
+    "type": "module",
+    "scripts": {
+      "start": "node src/index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "web-ext": "latest"
+    },
+    "devDependencies": {
+        "@types/node": "latest",
+        "typescript": "latest"
+    }
+  }

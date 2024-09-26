@@ -1,0 +1,75 @@
+{
+  "manifest_version": 2,
+  "name": "Foxameleon Defender",
+  "version": "2024.1.7.0",
+  "description": "A Firefox addon for Chameleon - Enhance your browser privacy and security",
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "geolocation",
+    "notifications",
+    "privacy",
+    "storage",
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "webRequestBlocking",
+    "scripts",
+    "<all_urls>"
+  ],
+  "icons": {
+    "16": "data/icons/16.png",
+    "32": "data/icons/32.png",
+    "64": "data/icons/icon_32x32_2x.png",
+    "128": "data/icons/icon_128x128.png"
+  },
+  "options_ui": {
+    "page": "data/options/options.html",
+    "open_in_tab": true
+  },
+  "browser_action": {
+    "default_popup": "data/popup/popup.html"
+  },
+  "background": {
+    "scripts": [
+      "modules/logger.js",
+      "modules/settings.js",
+      "modules/webrtc.js",
+      "modules/geolocation.js",
+      "modules/timezone.js",
+      "modules/emulations.js",
+      "modules/offsets.js",
+      "modules/prompter.js",
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["data/scripts/isolated.js"],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["data/scripts/main.js"],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["data/scripts/content-script.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    "modules/*.js"
+  ],
+  "applications": {
+    "gecko": {
+      "id": "foxameleon@chameleon.app",
+      "strict_min_version": "57.0"
+    }
+  }
+}

@@ -460,3 +460,4 @@ $RECYCLE.BIN/
 UploadToNuGet.ps1
 nuget*
 src/Chameleon.app.Addons.Tests/browserSettings.txt
+node_modules*

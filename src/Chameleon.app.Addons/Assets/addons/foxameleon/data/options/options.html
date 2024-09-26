@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Options Page :: Chromeleon</title>
+  <link rel="stylesheet" type="text/css" href="options.css">
+</head>
+<body>
+  <main>
+    <p class="fgtt">
+      Can this extension protect incognito (private) mode? <span id="incognito">No</span>
+      <div class="note">To enable this option in Chrome, check the "Allow in incognito" box for this extension.</div>
+    </p>
+    <div id="buttons">
+      <input type="button" value="Factory Reset" id="reset">
+      <span id="toast" aria-live="polite"></span>
+    </div>
+  </main>
+  <script type='module' src="options.js"></script>
+</body>
+</html>
