@@ -40,31 +40,19 @@
       "modules/emulations.js",
       "modules/offsets.js",
       "modules/prompter.js",
-      "background.js"
+      "modules/spoof/canvas.js",
+      "background.js",
+      "background-canvas.js"
     ]
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["data/scripts/isolated.js"],
+      "js": ["data/main.js"],
       "all_frames": true,
       "match_about_blank": true,
       "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["data/scripts/main.js"],
-      "all_frames": true,
-      "match_about_blank": true,
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["data/scripts/content-script.js"]
     }
-  ],
-  "web_accessible_resources": [
-    "modules/*.js"
   ],
   "applications": {
     "gecko": {

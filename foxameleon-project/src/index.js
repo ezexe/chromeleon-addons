@@ -11,8 +11,8 @@ console.log('Starting web-ext with options:', JSON.stringify(options, null, 2));
 // Launch the addon using web-ext
 webExt.cmd.run({
   sourceDir: options.sourceDir,
+  debugger: false,
   //add --no-notification to avoid the notification popup
-  args: ['--no-notification'],
 }).then(() => {
   console.log('Addon launched successfully!');
 }).catch((error) => {
