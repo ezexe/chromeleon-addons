@@ -25,7 +25,8 @@ function initializeUI() {
   setupEventListeners();
 }
 
-function loadSettings() {
+function loadSettings() 
+{
   console.log(SETTINGS_ARRAY,"--SETTINGS_ARRAY--");
   try
   {
@@ -37,6 +38,12 @@ function loadSettings() {
         document.getElementById("when-enabled").value = settings.eMode;
         document.getElementById("when-disabled").value = settings.dMode;
         document.getElementById("device-enum-api").checked = settings.dAPI;
+        if(!settings.timezoneSpoofing)
+        {
+          document.querySelectorAll('.two').forEach(function(element) {
+            element.style.display = 'none';
+          });
+        }
     });
   }
   catch(error)
@@ -52,7 +59,7 @@ async function saveSettings() {
   settings.dAPI = document.getElementById("device-enum-api").checked;
   await chrome.storage.sync.set(settings);
 
-  chrome.storage.local.set({
+  chrome.storage.sync.set({
     timezone: user.value,
     random: document.getElementById('random').checked,
     myIP: document.getElementById('update').checked,
@@ -71,7 +78,7 @@ function resetSettings() {
   // TODO: Reset to default settings
   localStorage.clear();
   chrome.storage.session.clear(() => {
-    chrome.storage.local.clear(() => {
+    chrome.storage.sync.clear(() => {
       chrome.runtime.reload();
       window.close();
     });
@@ -104,7 +111,7 @@ function setupEventListeners() {
 const offset = document.getElementById('offset');
 const user = document.getElementById('user');
 
-console.log(offsets,"--offsets--");
+console.log(offsets,offset,"--offsets--");
 
 const update = () => chrome.runtime.sendMessage({
   method: 'get-offset',
@@ -130,7 +137,7 @@ const initializeTimezoneUI = () =>
     f.appendChild(option);
   });
   offset.appendChild(f);
-  chrome.storage.local.get({
+  chrome.storage.sync.get({
     timezone: 'Etc/GMT',
     random: false,
     myIP: false,

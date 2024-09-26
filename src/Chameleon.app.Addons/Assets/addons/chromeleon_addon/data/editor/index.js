@@ -4,7 +4,7 @@ document.getElementById('msg').textContent = args.get('msg');
 
 const key = args.get('storage');
 
-chrome.storage.local.get({
+chrome.storage.sync.get({
   [key]: []
 }, prefs => {
   document.getElementById('editor').value = prefs[key].join('\n');
@@ -12,7 +12,7 @@ chrome.storage.local.get({
 
 document.querySelector('form').onsubmit = e => {
   e.preventDefault();
-  chrome.storage.local.set({
+  chrome.storage.sync.set({
     [key]: document.getElementById('editor').value.split('\n').filter((s, i, l) => {
       return s.trim() && l.indexOf(s) === i;
     })
