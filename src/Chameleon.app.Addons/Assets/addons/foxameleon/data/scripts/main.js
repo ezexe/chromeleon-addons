@@ -2,6 +2,9 @@
 const { settings, log } = require('../modules/settings.js');
 const config = require('../modules/randomConfig.js');
 const webglSpoofing = require('../modules/webglSpoofing.js');
+const canvasSpoofing = require('../modules/canvasSpoofing.js');
+const clientRectsSpoofing = require('../modules/clientRectsSpoofing.js');
+const fontsSpoofing = require('../modules/fontsSpoofing.js');
 
 let loaded = false;
 
@@ -22,11 +25,7 @@ function applySettings() {
   log.log("Settings loaded");
   if (!settings.enabled) return;
   // Spoofing of fonts
-  if (settings.fontsSpoofing) 
-  {
-    config.fonts.offsetHeight(HTMLElement);
-    config.fonts.offsetWidth(HTMLElement);
-  }
+  fontsSpoofing.apply();
   // Spoofing of WebGLRenderingContext and WebGL2RenderingContext
   if (settings.webglSpoofing) 
   {
@@ -37,7 +36,7 @@ function applySettings() {
     });
   }
   // Spoofing of CanvasRenderingContext2D
-  if (settings.canvasProtection) config.canvas.toDataURL(HTMLCanvasElement);
+  canvasSpoofing.protect(HTMLCanvasElement);
   //
   if (settings.webRtcEnabled && navigator.mediaDevices?.enumerateDevices) {
     navigator.mediaDevices.enumerateDevices = new Proxy(
@@ -59,23 +58,7 @@ function applySettings() {
 // Initialize framed settings
 function applyFramedSettings() {
   // Spoofing of DOMRect and DOMRectReadOnly
-  if (settings.clientRectsSpoofing) {
-    //Spoofing of DOMRect
-    {
-      const metrics = ["x", "y", "width", "height"];
-      for (let i = 0; i < metrics.length; i++) {
-        config.clientRects.method.DOMRect(metrics[i]);
-      }
-    }
-
-    // Spoofing of DOMRectReadOnly
-    {
-      const metrics = ["top", "right", "bottom", "left"];
-      for (let i = 0; i < metrics.length; i++) {
-        config.clientRects.method.DOMRectReadOnly(metrics[i]);
-      }
-    }
-  }
+  clientRectsSpoofing.apply();
 }
 
 // Listen for messages from the isolated script
