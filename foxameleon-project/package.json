@@ -5,15 +5,12 @@
     "main": "src/index.js",
     "type": "module",
     "scripts": {
-      "start": "node src/index.js"
+        "start": "node src/index.js",
+        "build": "web-ext build --source-dir C:\\repos\\chromeleon-addons\\src\\Chameleon.app.Addons\\Assets\\addons\\foxameleon"
     },
     "author": "",
     "license": "ISC",
-    "dependencies": {
-        "web-ext": "latest"
-    },
     "devDependencies": {
-        "@types/node": "latest",
-        "typescript": "latest"
+        "web-ext": "^8.3.0"
     }
-  }
+}
