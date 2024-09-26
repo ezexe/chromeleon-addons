@@ -125,7 +125,3 @@ function setupTabListeners() {
 
 // Initialize
 setupTabListeners();
-
-module.exports = {
-  applyWebglSpoofing,
-};

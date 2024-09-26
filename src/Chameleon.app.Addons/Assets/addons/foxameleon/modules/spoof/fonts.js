@@ -86,7 +86,3 @@ function setupTabListeners() {
 
 // Initialize
 setupTabListeners();
-
-module.exports = {
-  applyFontsSpoofing,
-};
