@@ -42,8 +42,9 @@
       "modules/prompter.js",
       "modules/spoof/canvas.js",
       "modules/spoof/clientrects.js",
-      "background.js",
-      "background-canvas.js"
+      "modules/spoof/fonts.js",
+      "modules/spoof/webgl.js",
+      "background.js"
     ]
   },
   "content_scripts": [
