@@ -212,8 +212,8 @@ const webglSpoofing = {
     if (settings.webglSpoofing) {
       [WebGLRenderingContext, WebGL2RenderingContext].forEach((context) => {
         glspoof.buffer(context);
-        // config.webgl.parameter(context);
-        // config.webgl.extension(context);
+        glspoof.parameter(context);
+        glspoof.extension(context);
       });
     }
   },

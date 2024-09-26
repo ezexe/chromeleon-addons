@@ -1,83 +1,92 @@
-const { settings } = require('./settings.js');
+const { settings } = require("../settings.js");
+const { log } = require("../logger.js");
 
-const fontspoof = {
-  fonts: {
-    rand: {
-      noise: function () {
-        const SIGN = Math.random() < Math.random() ? -1 : 1;
-        return Math.floor(Math.random() + SIGN * Math.random());
-      },
-      sign: function () {
-        const tmp = [-1, -1, -1, -1, -1, -1, +1, -1, -1, -1];
-        const index = Math.floor(Math.random() * tmp.length);
-        return tmp[index];
-      },
-    },
-    offsetHeight: function (target) {
-      let proto = target.prototype ? target.prototype : target.__proto__;
-
-      Object.defineProperty(proto, "offsetHeight", {
-        get: new Proxy(
-          Object.getOwnPropertyDescriptor(proto, "offsetHeight").get,
-          {
-            get(target, p, receiver) {
-              return target;
-            },
-            apply(target, self, args) {
-              //
-              const height = Math.floor(self.getBoundingClientRect().height);
-              const valid = height && fontspoof.fonts.rand.sign() === 1;
-              const result = valid
-                ? height + fontspoof.fonts.rand.noise()
-                : height;
-              //
-              if (valid && result !== height) {
-                //window.top.postMessage("font-defender-alert", "*");
-              }
-              //
-              return result;
-            },
-          }
-        ),
-      });
-    },
-    offsetWidth: function (target) {
-      let proto = target.prototype ? target.prototype : target.__proto__;
-      Object.defineProperty(proto, "offsetWidth", {
-        get: new Proxy(
-          Object.getOwnPropertyDescriptor(proto, "offsetWidth").get,
-          {
-            get(target, p, receiver) {
-              return target;
-            },
-            apply(target, self, args) {
-              //
-              const width = Math.floor(self.getBoundingClientRect().width);
-              const valid = width && fontspoof.fonts.rand.sign() === 1;
-              const result = valid
-                ? width + fontspoof.fonts.rand.noise()
-                : width;
-              //
-              if (valid && result !== width) {
-                //window.top.postMessage("font-defender-alert", "*");
-              }
-              //
-              return result;
-            },
-          }
-        ),
-      });
-    },
+const config = {
+  noise: {
+    low: 0.3,
+    medium: 0.5,
+    high: 0.8,
   },
 };
 
-const fontsSpoofing = {
-  apply: function () {
-    if (settings.fontsSpoofing) {
-      fontspoof.fonts.offsetHeight(HTMLElement);
-      fontspoof.fonts.offsetWidth(HTMLElement);
-    }
-  }
+const methods = {
+  offsetHeight: async function (tab) {
+    await browser.tabs.executeScript(tab.id, {
+      code: `
+        (function() {
+          Object.defineProperty(HTMLElement.prototype, "offsetHeight", {
+            get: new Proxy(
+              Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight").get,
+              {
+                get(target, p, receiver) {
+                  return target;
+                },
+                apply(target, self, args) {
+                  const height = Math.floor(self.getBoundingClientRect().height);
+                  const noise = (Math.random() < ${config.noise[settings.noiseLevel]} ? -1 : +1) * Math.floor(Math.random() * 2);
+                  return height + noise;
+                },
+              }
+            ),
+          });
+        })();
+      `,
+      runAt: "document_start",
+    });
+  },
+  offsetWidth: async function (tab) {
+    await browser.tabs.executeScript(tab.id, {
+      code: `
+        (function() {
+          Object.defineProperty(HTMLElement.prototype, "offsetWidth", {
+            get: new Proxy(
+              Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth").get,
+              {
+                get(target, p, receiver) {
+                  return target;
+                },
+                apply(target, self, args) {
+                  const width = Math.floor(self.getBoundingClientRect().width);
+                  const noise = (Math.random() < ${config.noise[settings.noiseLevel]} ? -1 : +1) * Math.floor(Math.random() * 2);
+                  return width + noise;
+                },
+              }
+            ),
+          });
+        })();
+      `,
+      runAt: "document_start",
+    });
+  },
 };
 
-module.exports = fontsSpoofing;
+async function applyFontsSpoofing(tab) {
+  if (tab.url.indexOf("about:") < 0 && settings.fontsSpoofing) {
+    log.info(`Applying fonts spoofing for tab ${tab.id}`);
+    try {
+      await methods.offsetHeight(tab);
+      await methods.offsetWidth(tab);
+    } catch (error) {
+      log.error(`Failed to apply fonts spoofing for tab ${tab.id}:`, error);
+    }
+  }
+}
+
+function setupTabListeners() {
+  browser.tabs.onCreated.addListener((tab) => {
+    applyFontsSpoofing(tab);
+  });
+
+  browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "loading") {
+      applyFontsSpoofing(tab);
+    }
+  });
+}
+
+// Initialize
+setupTabListeners();
+
+module.exports = {
+  applyFontsSpoofing,
+};
