@@ -1,4 +1,4 @@
-const SETTINGS_ARRAY = [
+export const SETTINGS_ARRAY = [
   "enabled",
   "webglSpoofing",
   "canvasProtection",
@@ -24,7 +24,7 @@ const SETTINGS_ARRAY = [
   "history",
 ];
 
-let settings = {
+export let settings = {
   enabled: true,
   webglSpoofing: true,
   canvasProtection: true,
@@ -50,12 +50,12 @@ let settings = {
   history: [],
 };
 
-const Actions = {
+export const Actions = {
   TZ_RESET: 'tz_reset',
   GEO_RESET: 'geo_reset',
 };
 
-const promptDictionary = {
+export const promptDictionary = {
   [Actions.TZ_RESET]: {
     promptText: "Enter a \"timezone\" value. Use https://www.timeanddate.com/time/map/ to find these values",
     defaultInput: settings.timezone
@@ -66,7 +66,7 @@ const promptDictionary = {
   }
 };
 
-async function updateSettings() {
-  await browser.storage.sync.set(settings);
-  settings = await browser.storage.sync.get(SETTINGS_ARRAY);
+export async function updateSettings() {
+  chrome.storage.sync.set(settings);
+  settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
 }

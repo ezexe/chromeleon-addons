@@ -13,7 +13,6 @@
     "tabs",
     "webNavigation",
     "webRequest",
-    "webRequestBlocking",
     "<all_urls>"
   ],
   "icons": {
@@ -24,7 +23,7 @@
   },
   "options_ui": {
     "page": "data/options/options.html",
-    "open_in_tab": true
+    "browser_style": true
   },
   "browser_action": {
     "default_popup": "data/popup/popup.html"
@@ -50,7 +49,6 @@
     "gecko": {
       "id": "foxameleon@chameleon.app",
       "strict_min_version": "58.0"
-    },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    }
   }
 }
