@@ -3,11 +3,11 @@ import { tryPrompt } from './prompter.js';
 import { log } from './logger.js';
 
 export function createGeoContextMenus() {
-  chrome.contextMenus.create({ title: "GEO", id: "geo", contexts: ["action"] });
-  chrome.contextMenus.create({ title: "Allow/Disallow GEO requests", id: "enabled", contexts: ["action"], type: "checkbox", checked: settings.geoSpoofing, parentId: "geo" });
-  chrome.contextMenus.create({ title: "Reset GEO data (ask for new values)", id: "reset", contexts: ["action"], parentId: "geo" });
-  chrome.contextMenus.create({ title: "Test GEO location", id: "geo-test", contexts: ["action"], parentId: "geo" });
-  chrome.contextMenus.create({ title: "Options", id: "options", contexts: ["action"], parentId: "geo" });
+  chrome.contextMenus.create({ title: "GEO", id: "geo", contexts: ["browser_action"] });
+  chrome.contextMenus.create({ title: "Allow/Disallow GEO requests", id: "enabled", contexts: ["browser_action"], type: "checkbox", checked: settings.geoSpoofing, parentId: "geo" });
+  chrome.contextMenus.create({ title: "Reset GEO data (ask for new values)", id: "reset", contexts: ["browser_action"], parentId: "geo" });
+  chrome.contextMenus.create({ title: "Test GEO location", id: "geo-test", contexts: ["browser_action"], parentId: "geo" });
+  chrome.contextMenus.create({ title: "Options", id: "options", contexts: ["browser_action"], parentId: "geo" });
   createRandomizeGeoMenu();
   createAccuracyMenu();
   createHistoryMenu();
@@ -15,7 +15,7 @@ export function createGeoContextMenus() {
 }
 
 function createRandomizeGeoMenu() {
-  chrome.contextMenus.create({ title: "Randomize", id: "randomizeGeo", contexts: ["action"], parentId: "options" });
+  chrome.contextMenus.create({ title: "Randomize", id: "randomizeGeo", contexts: ["browser_action"], parentId: "options" });
   const randomizeOptions = [
     { title: "Disabled", value: false },
     { title: "0.1", value: 0.1 },
@@ -28,7 +28,7 @@ function createRandomizeGeoMenu() {
     chrome.contextMenus.create({
       title: option.title,
       id: `randomizeGeo:${option.value}`,
-      contexts: ["action"],
+      contexts: ["browser_action"],
       checked: settings.randomizeGeo === option.value,
       type: "radio",
       parentId: "randomizeGeo",
@@ -37,13 +37,13 @@ function createRandomizeGeoMenu() {
 }
 
 function createAccuracyMenu() {
-  chrome.contextMenus.create({ title: "Accuracy", id: "accuracy", contexts: ["action"], parentId: "options" });
+  chrome.contextMenus.create({ title: "Accuracy", id: "accuracy", contexts: ["browser_action"], parentId: "options" });
   const accuracyOptions = [64.0999, 34.0999, 10.0999];
   accuracyOptions.forEach(accuracy => {
     chrome.contextMenus.create({
       title: accuracy.toString(),
       id: `accuracy:${accuracy}`,
-      contexts: ["action"],
+      contexts: ["browser_action"],
       checked: settings.accuracy === accuracy,
       type: "radio",
       parentId: "accuracy",
@@ -55,7 +55,7 @@ function createHistoryMenu() {
   chrome.contextMenus.create({
     title: "GEO History",
     id: "history",
-    contexts: ["action"],
+    contexts: ["browser_action"],
     visible: settings.history.length !== 0,
     parentId: "options",
   });
@@ -63,7 +63,7 @@ function createHistoryMenu() {
     chrome.contextMenus.create({
       title: `${a}, ${b}`,
       id: `set:${a}|${b}`,
-      contexts: ["action"],
+      contexts: ["browser_action"],
       parentId: "history",
       type: "radio",
       checked: settings.latitude === a && settings.longitude === b,
@@ -72,10 +72,10 @@ function createHistoryMenu() {
 }
 
 function createBypassMenu() {
-  chrome.contextMenus.create({ title: "Bypass Spoofing", id: "bypass", contexts: ["action"], parentId: "options" });
-  chrome.contextMenus.create({ title: "Add to the Exception List", id: "add-exception", contexts: ["action"], parentId: "bypass" });
-  chrome.contextMenus.create({ title: "Remove from the Exception List", id: "remove-exception", contexts: ["action"], parentId: "bypass" });
-  chrome.contextMenus.create({ title: "Open Exception List in Editor", id: "exception-editor", contexts: ["action"], parentId: "bypass" });
+  chrome.contextMenus.create({ title: "Bypass Spoofing", id: "bypass", contexts: ["browser_action"], parentId: "options" });
+  chrome.contextMenus.create({ title: "Add to the Exception List", id: "add-exception", contexts: ["browser_action"], parentId: "bypass" });
+  chrome.contextMenus.create({ title: "Remove from the Exception List", id: "remove-exception", contexts: ["browser_action"], parentId: "bypass" });
+  chrome.contextMenus.create({ title: "Open Exception List in Editor", id: "exception-editor", contexts: ["browser_action"], parentId: "bypass" });
 }
 
 export async function handleGeoMenuClick(info, tab) {

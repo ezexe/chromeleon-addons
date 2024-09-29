@@ -4,16 +4,13 @@
   "version": "2024.1.7.0",
   "description": "A Firefox addon for Chameleon - Enhance your browser privacy and security",
   "permissions": [
-    "activeTab",
-    "contextMenus",
-    "geolocation",
-    "notifications",
-    "privacy",
     "storage",
-    "tabs",
+    "contextMenus",
+    "activeTab",
+    "*://*/*",
     "webNavigation",
-    "webRequest",
-    "<all_urls>"
+    "notifications",
+    "privacy"
   ],
   "icons": {
     "16": "data/icons/16.png",
@@ -22,33 +19,33 @@
     "128": "data/icons/icon_128x128.png"
   },
   "options_ui": {
-    "page": "data/options/options.html",
-    "browser_style": true
+    "page": "data/options/options.html"
   },
   "browser_action": {
     "default_popup": "data/popup/popup.html"
-  },
+  }, 
   "background": {
+    "persistent": false,
     "scripts": [
-      "modules/logger.js",
-      "modules/settings.js",
-      "modules/webrtc.js",
-      "modules/geolocation.js",
-      "modules/timezone.js",
-      "modules/offsets.js",
-      "modules/prompter.js",
-      "modules/spoof/canvas.js",
-      "modules/spoof/clientrects.js",
-      "modules/spoof/emulations.js",
-      "modules/spoof/fonts.js",
-      "modules/spoof/webgl.js",
       "background.js"
-    ]
+    ],
+    "type": "module"
   },
-  "applications": {
+  "content_scripts": [
+    {
+      "matches": [ "*://*/*" ],
+      "match_about_blank": true,
+      "all_frames": true,
+      "run_at": "document_start",
+      "js": [
+        "scripts/inject.js"
+      ]
+    }
+  ],
+  "browser_specific_settings": {
     "gecko": {
       "id": "foxameleon@chameleon.app",
-      "strict_min_version": "58.0"
+      "strict_min_version": "109.0"
     }
   }
 }

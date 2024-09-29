@@ -36,7 +36,7 @@ webExt.cmd.run({
   browserConsole: true,
   noInput: true,
   noReload: true,
-  preInstall: true,
+  preInstall: false,
   profileCreateIfMissing: true,
 }).then((runner) => {
   console.log('Addon launched successfully!');

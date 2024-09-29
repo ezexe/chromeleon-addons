@@ -38,7 +38,7 @@ export let settings = {
   randomizeTZ: false,
   randomizeGeo: false,
   noiseLevel: "medium",
-  eMode: "disable_non_proxied_udp",
+  eMode: "proxy_only",
   dMode: "default_public_interface_only",
   timezone: "America/Los_Angeles",
   locale: "en-US",
@@ -67,6 +67,9 @@ export const promptDictionary = {
 };
 
 export async function updateSettings() {
-  chrome.storage.sync.set(settings);
-  settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
+  if(settings === undefined) {
+    settings = await browser.storage.sync.get(SETTINGS_ARRAY);
+  }
+  await browser.storage.sync.set(settings);
+  settings = await browser.storage.sync.get(SETTINGS_ARRAY);
 }

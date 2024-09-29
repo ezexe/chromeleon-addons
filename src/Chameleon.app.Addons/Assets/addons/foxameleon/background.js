@@ -3,7 +3,6 @@ import { settings, updateSettings } from "./modules/settings.js";
 import { createWebRTCContextMenus, handleWebRTCMenuClick, handleWebRTCSettings } from "./modules/webrtc.js";
 import { createGeoContextMenus, handleGeoMenuClick } from "./modules/geolocation.js";
 import { createTimezoneContextMenus, handleTimezoneMenuClick } from "./modules/timezone.js";
-import { applyOverrides, setupTabListeners } from "./modules/emulations.js";
 
 async function OnLoad() {
   await browser.storage.sync.set(settings);
@@ -16,20 +15,14 @@ async function OnLoad() {
 }
 OnLoad();
 
-browser.tabs.query({}).then((tabs) => {
-  tabs.forEach((tab) => {
-    applyOverrides(tab);
-  });
-});
-
 async function handleContextMenuClick(info, tab) {
   if (info.menuItemId === "test") {
-    await browser.tabs.create({
+    await chrome.tabs.create({
       url: "https://webbrowsertools.com/ip-address/",
       index: tab.index + 1,
     });
   } else if (info.menuItemId.startsWith("webrtc") || ["dApi", "disable_non_proxied_udp", "proxy_only", "default_public_interface_only", "default_public_and_private_interfaces"].includes(info.menuItemId)) {
-    await handleWebRTCMenuClick(info);
+    handleWebRTCMenuClick(info);
   } else if (info.menuItemId.startsWith("geo") || info.menuItemId === "enabled" || info.menuItemId === "reset" || info.menuItemId.startsWith("set:") || info.menuItemId.startsWith("randomizeGeo:") || info.menuItemId.startsWith("accuracy:") || ["add-exception", "remove-exception", "exception-editor"].includes(info.menuItemId)) {
     await handleGeoMenuClick(info, tab);
   } else if (["update-timezone", "set-timezone", "check-timezone", "randomize-timezone"].includes(info.menuItemId)) {
@@ -37,20 +30,14 @@ async function handleContextMenuClick(info, tab) {
   }
   
   await browser.storage.sync.set(settings);
-  const tabs = await browser.tabs.query({});
-  tabs.forEach((tab) => {
-    applyOverrides(tab);
-  });
 }
 
-browser.menus.onClicked.addListener(handleContextMenuClick);
+chrome.contextMenus.onClicked.addListener(handleContextMenuClick);
 
 browser.storage.onChanged.addListener(async (changes, _) => {
   await updateSettings();
   handleWebRTCSettings();
   log.info("Settings updated");
 });
-
-setupTabListeners();
 
 log.info("Background script loaded");

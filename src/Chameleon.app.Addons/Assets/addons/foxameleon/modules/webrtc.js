@@ -1,13 +1,10 @@
 import { settings, updateSettings } from './settings.js';
-import { log } from './logger.js';
-
-const IS_FIREFOX = /Firefox/.test(navigator.userAgent) || typeof InstallTrigger !== "undefined";
 
 export function handleWebRTCSettings() {
   const value = settings.webRtcEnabled && settings.dAPI ? settings.eMode : settings.dMode;
-  chrome.privacy.network.webRTCIPHandlingPolicy.clear({}, () => {
-    chrome.privacy.network.webRTCIPHandlingPolicy.set({ value }, () => {
-      chrome.privacy.network.webRTCIPHandlingPolicy.get({}, (s) => {
+  browser.privacy.network.webRTCIPHandlingPolicy.clear({}, () => {
+    browser.privacy.network.webRTCIPHandlingPolicy.set({ value }, () => {
+      browser.privacy.network.webRTCIPHandlingPolicy.get({}, (s) => {
         let path = "/data/icons/";
         let title = "WebRTC Protection is On";
 
@@ -19,32 +16,32 @@ export function handleWebRTCSettings() {
           title = "WebRTC Protection is Off";
         }
 
-        chrome.action.setIcon({
-          path: { 16: path + "16.png", 32: path + "32.png" },
-        });
-        chrome.action.setTitle({ title });
+        // browser.action.setIcon({
+        //   path: { 16: path + "16.png", 32: path + "32.png" },
+        // });
+        // browser.action.setTitle({ title });
       });
     });
   });
 }
 
 export function createWebRTCContextMenus() {
-  chrome.contextMenus.create({ title: "WebRTC", id: "webrtc-menu", contexts: ["action"] });
-  chrome.contextMenus.create({ title: "Check WebRTC Leakage", id: "test", contexts: ["action"], parentId: "webrtc-menu" });
-  chrome.contextMenus.create({ title: "WebRTC Protection Enabled", id: "webRtcEnabled", contexts: ["action"], type: "checkbox", parentId: "webrtc-menu", checked: settings.webRtcEnabled });
-  chrome.contextMenus.create({ title: "Disable WebRTC Media Device Enumeration API", id: "dApi", contexts: ["action"], type: "checkbox", parentId: "webrtc-menu", checked: settings.dAPI });
-  chrome.contextMenus.create({ title: "Options", id: "webrtc-options", contexts: ["action"], parentId: "webrtc-menu" });
+  chrome.contextMenus.create({ title: "WebRTC", id: "webrtc-menu", contexts: ["browser_action"] });
+  chrome.contextMenus.create({ title: "Check WebRTC Leakage", id: "test", contexts: ["browser_action"], parentId: "webrtc-menu" });
+  chrome.contextMenus.create({ title: "WebRTC Protection Enabled", id: "webRtcEnabled", contexts: ["browser_action"], type: "checkbox", parentId: "webrtc-menu", checked: settings.webRtcEnabled });
+  chrome.contextMenus.create({ title: "Disable WebRTC Media Device Enumeration API", id: "dApi", contexts: ["browser_action"], type: "checkbox", parentId: "webrtc-menu", checked: settings.dAPI });
+  chrome.contextMenus.create({ title: "Options", id: "webrtc-options", contexts: ["browser_action"], parentId: "webrtc-menu" });
   
   createWhenEnabledMenu();
   createWhenDisabledMenu();
 }
 
 function createWhenEnabledMenu() {
-  chrome.contextMenus.create({ title: "When Enabled", id: "when-enabled", contexts: ["action"], parentId: "webrtc-options" });
+  chrome.contextMenus.create({ title: "When Enabled", id: "when-enabled", contexts: ["browser_action"], parentId: "webrtc-options" });
   chrome.contextMenus.create({
     title: "Disable non-proxied UDP (force proxy)",
     id: "disable_non_proxied_udp",
-    contexts: ["action"],
+    contexts: ["browser_action"],
     type: "radio",
     parentId: "when-enabled",
     checked: settings.eMode === "disable_non_proxied_udp"
@@ -52,20 +49,20 @@ function createWhenEnabledMenu() {
   chrome.contextMenus.create({
     title: "Only connections using TURN on a TCP connection through a proxy",
     id: "proxy_only",
-    contexts: ["action"],
+    contexts: ["browser_action"],
     type: "radio",
     parentId: "when-enabled",
-    enabled: IS_FIREFOX,
+    enabled: true,
     checked: settings.eMode === "proxy_only"
   });
 }
 
 function createWhenDisabledMenu() {
-  chrome.contextMenus.create({ title: "When Disabled", id: "when-disabled", contexts: ["action"], parentId: "webrtc-options" });
+  chrome.contextMenus.create({ title: "When Disabled", id: "when-disabled", contexts: ["browser_action"], parentId: "webrtc-options" });
   chrome.contextMenus.create({
     title: "Use the default public interface only",
     id: "default_public_interface_only",
-    contexts: ["action"],
+    contexts: ["browser_action"],
     type: "radio",
     parentId: "when-disabled",
     checked: settings.dMode === "default_public_interface_only"
@@ -73,14 +70,14 @@ function createWhenDisabledMenu() {
   chrome.contextMenus.create({
     title: "Use the default public interface and private interface",
     id: "default_public_and_private_interfaces",
-    contexts: ["action"],
+    contexts: ["browser_action"],
     type: "radio",
     parentId: "when-disabled",
     checked: settings.dMode === "default_public_and_private_interfaces"
   });
 }
 
-export function handleWebRTCMenuClick(info) {
+export async function handleWebRTCMenuClick(info) {
   if (info.menuItemId === "webRtcEnabled") {
     settings.webRtcEnabled = info.checked;
   } else if (info.menuItemId === "dApi") {
@@ -92,6 +89,6 @@ export function handleWebRTCMenuClick(info) {
   } else if (info.menuItemId === "test") {
     chrome.tabs.create({ url: "https://webbrowsertools.com/ip-address/" });
   }
-  updateSettings();
+  await updateSettings();
   handleWebRTCSettings();
 }

@@ -162,7 +162,6 @@
             return target;
           },
           apply(target, self, args) {
-            window.top.postMessage("webgl-defender-alert", "*");
             //
             if (args[0] === 3415) return 0;
             else if (args[0] === 3414) return 24;

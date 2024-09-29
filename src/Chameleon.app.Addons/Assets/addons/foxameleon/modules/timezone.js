@@ -1,14 +1,13 @@
 import { settings, updateSettings, Actions } from './settings.js';
 import { tryPrompt } from './prompter.js';
 import { log } from './logger.js';
-import { offsets } from './offsets.js';
 
 export function createTimezoneContextMenus() {
-  chrome.contextMenus.create({ title: "Timezone", id: "timezone-menu", contexts: ["action"] }, () => chrome.runtime.lastError);
-  chrome.contextMenus.create({ title: "Check my Current Timezone", id: "check-timezone", contexts: ["action"], parentId: "timezone-menu" }, () => chrome.runtime.lastError);
-  chrome.contextMenus.create({ title: "Set Timezone", id: "set-timezone", contexts: ["action"], parentId: "timezone-menu" }, () => chrome.runtime.lastError);
-  chrome.contextMenus.create({ title: "Update Timezone from Local System Time", id: "update-timezone", contexts: ["action"], parentId: "timezone-menu" }, () => chrome.runtime.lastError);
-  chrome.contextMenus.create({ title: "Randomize Timezone", id: "randomize-timezone", contexts: ["action"], type: "checkbox", parentId: "timezone-menu", checked: settings.randomizeTZ }, () => chrome.runtime.lastError);
+  chrome.contextMenus.create({ title: "Timezone", id: "timezone-menu", contexts: ["browser_action"] }, () => chrome.runtime.lastError);
+  chrome.contextMenus.create({ title: "Check my Current Timezone", id: "check-timezone", contexts: ["browser_action"], parentId: "timezone-menu" }, () => chrome.runtime.lastError);
+  chrome.contextMenus.create({ title: "Set Timezone", id: "set-timezone", contexts: ["browser_action"], parentId: "timezone-menu" }, () => chrome.runtime.lastError);
+  chrome.contextMenus.create({ title: "Update Timezone from Local System Time", id: "update-timezone", contexts: ["browser_action"], parentId: "timezone-menu" }, () => chrome.runtime.lastError);
+  chrome.contextMenus.create({ title: "Randomize Timezone", id: "randomize-timezone", contexts: ["browser_action"], type: "checkbox", parentId: "timezone-menu", checked: settings.randomizeTZ }, () => chrome.runtime.lastError);
 }
 
 export async function handleTimezoneMenuClick(info, tab) {
@@ -36,3 +35,18 @@ export async function handleTimezoneMenuClick(info, tab) {
   }
   updateSettings();
 }
+
+const onCommitted = ({url, tabId, frameId}) => {
+  if (url && url.startsWith('http')) {
+
+    chrome.tabs.executeScript(tabId, {
+      runAt: 'document_start',
+      frameId,
+      matchAboutBlank: true,
+      code: `
+        self.prefs = ${JSON.stringify(settings)};
+      `
+    }, () => chrome.runtime.lastError);
+  }
+};
+chrome.webNavigation.onCommitted.addListener(onCommitted);
