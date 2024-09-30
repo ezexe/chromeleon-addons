@@ -38,6 +38,9 @@ webExt.cmd.run({
   noReload: true,
   preInstall: false,
   profileCreateIfMissing: true,
+  pref: {
+    "privacy.fingerprintingProtection.overrides": "+JSDateTimeUTC"
+  },
 }).then((runner) => {
   console.log('Addon launched successfully!');
   // runner.exit();
