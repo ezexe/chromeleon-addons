@@ -1,6 +1,7 @@
 import { settings, updateSettings, Actions } from './settings.js';
 import { tryPrompt } from './prompter.js';
 import { log } from './logger.js';
+import { genUULE, updateLocationRules } from './uule.js';
 
 export function createGeoContextMenus() {
   chrome.contextMenus.create({ title: "GEO", id: "geo", contexts: ["action"] });
@@ -111,6 +112,10 @@ function updateGeoHistory() {
   if (!names.includes(`${settings.latitude}|${settings.longitude}`)) {
     settings.history.unshift([settings.latitude, settings.longitude]);
     settings.history = settings.history.slice(0, 10);
+    const lat = settings.latitude;
+    const lng = settings.longitude;
+    const uule = genUULE(lat, lng);
+    updateLocationRules(uule);
   }
 }
 
