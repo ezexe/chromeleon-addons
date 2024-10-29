@@ -1,6 +1,7 @@
 import { settings } from './settings.js';
 import { log } from './logger.js';
 import { offsets } from './offsets.js';
+import { genUULE, updateLocationRules } from './uule.js';
 
 export async function applyOverrides(tab) {
   try {
@@ -66,6 +67,10 @@ async function applyGeoOverride(tab) {
       accuracy: settings.accuracy,
     }
   );
+  const lat = settings.latitude;
+  const lng = settings.longitude;
+  const uule = genUULE(lat, lng);
+  updateLocationRules(uule);
 }
 
 function randomizeGeoLocation() {
@@ -77,6 +82,10 @@ function randomizeGeoLocation() {
     const n = settings.longitude.toString().split(".")[1].length;
     settings.longitude = settings.longitude + (Math.random() > 0.5 ? 1 : -1) * settings.randomizeGeo * Math.random();
     settings.longitude = Number(settings.longitude.toFixed(n));
+    const lat = settings.latitude;
+    const lng = settings.longitude;
+    const uule = genUULE(lat, lng);
+    updateLocationRules(uule);
   } catch (e) {
     log.warn("Cannot randomizeGeo GEO", e);
   }

@@ -38,7 +38,7 @@ async function handleContextMenuClick(info, tab) {
   
   await chrome.storage.sync.set(settings);
   chrome.tabs.query({}, (tabs) => {
-    tabs.forEach((tab) => {
+    tabs.forEach((tab)=> {
       applyOverrides(tab);
     });
   });
@@ -50,6 +50,7 @@ chrome.storage.onChanged.addListener(async (changes, _) => {
   await updateSettings();
   handleWebRTCSettings();
   log.info("Settings updated");
+  console.log(changes, "changes====")
 });
 
 setupTabListeners();

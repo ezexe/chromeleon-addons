@@ -42,4 +42,24 @@
     },
   };
   background.listen();
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'getGeolocation') {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            sendResponse({ latitude, longitude });
+          },
+          (error) => {
+            sendResponse({ error: `Geolocation error: ${error.message}` });
+          }
+        );
+      } else {
+        sendResponse({ error: 'Geolocation API not supported' });
+      }
+    }
+    return true;  // Required for asynchronous sendResponse
+  });
+  
 })();
