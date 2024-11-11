@@ -1,32 +1,14 @@
-(async function () {
-  // Access the settings from the global window object
-  const settings = window.__myAddonSettings__;
-  const seed = window.__myAddonSeed__;
-  const randObjName = window.__myAddonRandObjName__;
-  if(!settings.enabled) return;
+(function () {
+const settings = window.__myAddonSettings__;
+if(!settings.enabled || !settings.timezoneSpoofing) return;
 
-  let script = document.createElement("script");
-  script.textContent = `
-(function(){
-    const inject = (spoofContext) => {
-      // if (spoofContext.CHAMELEON_SPOOF) return;
+let ORIGINAL_DATE = window.Date;
 
-      spoofContext.CHAMELEON_SPOOF = "CHAMELEON_SPOOF";`;
-
-  // Timezone spoofing
-  if (settings.timezoneSpoofing) {
-    script.textContent += `
-if (new Date()[spoofContext.CHAMELEON_SPOOF]) {
-  spoofContext.Date = Date;
-  return;
-}
-let ORIGINAL_DATE = spoofContext.Date;
-
-class SpoofDate extends ORIGINAL_DATE {
+class Date extends ORIGINAL_DATE {
     #ad; // adjusted date
 
     #sync() {
-      const offset = (${settings.tzOffset} + super.getTimezoneOffset());
+      const offset = settings.tzOffset + super.getTimezoneOffset();
       this.#ad = new ORIGINAL_DATE(this.getTime() + offset * 60 * 1000);
     }
 
@@ -36,7 +18,7 @@ class SpoofDate extends ORIGINAL_DATE {
       this.#sync();
     }
     getTimezoneOffset() {
-      return ${settings.tzOffset};
+      return settings.tzOffset;
     }
     /* to string (only supports en locale) */
     toTimeString() {
@@ -45,7 +27,7 @@ class SpoofDate extends ORIGINAL_DATE {
       }
 
       const parts = super.toLocaleString.call(this, 'en', {
-        timeZone: '${settings.timezone}',
+        timeZone: settings.timezone,
         timeZoneName: 'longOffset'
       }).split('GMT');
 
@@ -56,7 +38,7 @@ class SpoofDate extends ORIGINAL_DATE {
       const a = 'GMT' + parts[1].replace(':', '');
 
       const b = super.toLocaleString.call(this, 'en', {
-        timeZone: '${settings.timezone}',
+        timeZone: settings.timezone,
         timeZoneName: 'long'
       }).split(/(AM |PM )/i).pop();
 
@@ -75,19 +57,19 @@ class SpoofDate extends ORIGINAL_DATE {
     }
     toLocaleDateString(...args) {
       args[1] = args[1] || {};
-      args[1].timeZone = args[1].timeZone || '${settings.timezone}';
+      args[1].timeZone = args[1].timeZone || settings.timezone;
 
       return super.toLocaleDateString(...args);
     }
     toLocaleTimeString(...args) {
       args[1] = args[1] || {};
-      args[1].timeZone = args[1].timeZone || '${settings.timezone}';
+      args[1].timeZone = args[1].timeZone || settings.timezone;
 
       return super.toLocaleTimeString(...args);
     }
     toLocaleString(...args) {
       args[1] = args[1] || {};
-      args[1].timeZone = args[1].timeZone || '${settings.timezone}';
+      args[1].timeZone = args[1].timeZone || settings.timezone;
 
       return super.toLocaleString(...args);
     }
@@ -169,67 +151,30 @@ class SpoofDate extends ORIGINAL_DATE {
     }
   }
 
-spoofContext.Date = SpoofDate;
-spoofContext.Date = new Proxy(Date, {
+window.Date = Date;
+window.Date = new Proxy(Date, {
   apply(target, self, args) {
     return new SpoofDate(...args);
   }
 });
 
-  const DateTimeFormat = spoofContext.Intl.DateTimeFormat;
-
-  class SpoofDateTimeFormat extends Intl.DateTimeFormat {
+  class DateTimeFormat extends Intl.DateTimeFormat {
     constructor(...args) {
       if (!args[1]) {
         args[1] = {};
       }
       if (!args[1].timeZone) {
-        args[1].timeZone = '${settings.timezone}';
+        args[1].timeZone = settings.timezone;
       }
 
       super(...args);
     }
   }
 
-  spoofContext.Intl.DateTimeFormat = SpoofDateTimeFormat;
-  spoofContext.Intl.DateTimeFormat = new Proxy(Intl.DateTimeFormat, {
+  window.Intl.DateTimeFormat = DateTimeFormat;
+  window.Intl.DateTimeFormat = new Proxy(Intl.DateTimeFormat, {
     apply(target, self, args) {
       return new Intl.DateTimeFormat(...args);
     }
   });
-`.replace(
-      /ORIGINAL_DATE/g,
-      String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
-        Math.random()
-          .toString(36)
-          .substring(Math.floor(Math.random() * 5) + 5)
-    );
-  }
-
-  script.textContent += ` };
-
-    inject(window);
-  })()
-  `
-    .replace(/CHAMELEON_SPOOF/g, randObjName)
-    .replace(
-      /ORIGINAL_INTL/g,
-      String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
-        Math.random()
-          .toString(36)
-          .substring(Math.floor(Math.random() * 5) + 5)
-    );
-  // Inject the script into the page
-  document.documentElement.append(script);
-  /*script.remove();*/
-
-  let scriptel = document.createElement("script");
-  scriptel.src = URL.createObjectURL(
-    new Blob([script.textContent], { type: "text/javascript" })
-  );
-  (document.head || document.documentElement).appendChild(scriptel);
-  try {
-    URL.revokeObjectURL(scriptel.src);
-  } catch (e) {}
-  /* scriptel.remove();*/
 })();

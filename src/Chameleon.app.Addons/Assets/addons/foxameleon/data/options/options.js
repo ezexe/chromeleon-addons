@@ -1,4 +1,4 @@
-import { SETTINGS_ARRAY, settingsData } from "../../modules/settings.js";
+import { SETTINGS_ARRAY } from "../../modules/settings.js";
 document.addEventListener("DOMContentLoaded", async function () {
   let settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
   const toast = document.getElementById("toast");
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     chrome.storage.session.clear(() => {
       chrome.storage.sync.clear(async () => {
         chrome.runtime.reload();
-        await chrome.storage.sync.set(settingsData);
+          await chrome.storage.sync.set(settings);
         settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
         toast.textContent = "Options Reset";
         window.setTimeout(() => (toast.textContent = ""), 750);

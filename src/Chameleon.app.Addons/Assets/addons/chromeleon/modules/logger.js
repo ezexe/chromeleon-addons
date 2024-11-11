@@ -1,4 +1,4 @@
-const ADDON_NAME = "Geckoleon Defender";
+const ADDON_NAME = "Chromeleon Defender";
 
 const LOG_LEVELS = {
   LOG: 0,

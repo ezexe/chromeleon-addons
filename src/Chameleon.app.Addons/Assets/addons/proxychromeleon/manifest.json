@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Chromeleon Auto Proxy",
+  "version": "2024.1.8.0",
+  "permissions": [
+    "proxy",
+    "tabs",
+    "webRequest",
+    "webRequestAuthProvider",
+    "storage",
+    "management"
+  ],
+  "host_permissions": [ "<all_urls>" ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "externally_connectable": {
+    "ids": ["cffjcbnflngjpnjenjogeaojacooflng"],
+    "matches": ["*://*/*"]
+  }
+}

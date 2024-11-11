@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Foxameleon Defender",
-  "version": "2024.1.7.0",
+  "name": "Geckoleon",
+  "version": "2024.9.6.31",
   "description": "A Firefox addon for Chameleon - Enhance your browser privacy and security",
   "permissions": [
     "storage",
@@ -10,7 +10,8 @@
     "*://*/*",
     "webNavigation",
     "notifications",
-    "privacy"
+    "privacy",
+    "declarativeNetRequest"
   ],
   "icons": {
     "16": "data/icons/16.png",
@@ -23,17 +24,23 @@
   },
   "browser_action": {
     "default_popup": "data/popup/popup.html"
-  }, 
+  },
   "background": {
-    "persistent": false,
+    "persistent": true,
+    "type": "module",
     "scripts": [
       "background.js"
-    ],
-    "type": "module"
+    ]
   },
+  "content_scripts": [
+    {
+      "matches": [ "<all_urls>" ],
+      "js": [ "scripts/content-script.js" ]
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "foxameleon@chameleon.app",
+      "id": "geckomeleon@chameleonmode.com",
       "strict_min_version": "109.0"
     }
   }

@@ -2,7 +2,7 @@ import { noises, SETTINGS_ARRAY } from "../../modules/settings.js";
 import { offsets } from "../../modules/offsets.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
-  let settings = await browser.storage.sync.get(SETTINGS_ARRAY);
+  let settings = await chrome.storage.sync.get(SETTINGS_ARRAY);
   const toggleExtension = document.getElementById("toggle-extension");
   const statusText = document.getElementById("status-text");
   const noiseLevelSlider = document.getElementById("noise-level-slider");
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       settings.Fontssign = tmp[index];
     }
 
-    browser.storage.sync.set(settings, function () {
+    chrome.storage.sync.set(settings, function () {
       updateStatus();
     });
   }

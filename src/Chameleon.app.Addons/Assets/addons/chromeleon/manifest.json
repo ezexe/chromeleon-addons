@@ -1,0 +1,71 @@
+{
+  "version": "2024.9.6.1",
+  "manifest_version": 3,
+  "offline_enabled": true,
+  "name": "Chromeleon",
+  "description": "A Chrome addon for Chameleon - Enhance your browser privacy and security",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "notifications",
+    "activeTab",
+    "debugger",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "privacy",
+    "scripting",
+    "userScripts",
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "geolocation"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "commands": {
+    "_execute_action": {}
+  },
+  "icons": {
+    "16": "data/icons/16.png",
+    "32": "data/icons/32.png",
+    "64": "data/icons/icon_32x32_2x.png",
+    "128": "data/icons/icon_128x128.png"
+  },
+  "options_ui": {
+    "page": "/data/options/options.html"
+  },
+  "action": {
+    "default_popup": "data/popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "world": "ISOLATED",
+      "matches": [ "*://*/*" ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_start",
+      "match_origin_as_fallback": true,
+      "js": [ 
+        "scriptin/isolated.js" 
+      ]
+    },
+    {
+      "matches": [ "<all_urls>" ],
+      "js": [ "scriptin/content-script.js" ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "modules/*.js"
+      ],
+      "matches": [ "<all_urls>" ]
+    }
+  ],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqiE+Ii2nQx8zV8oOedrhqASrq5/X/fag/uiIT77r9miVKUHWkeBxGBnP1Egz80OLG9fGkQT7MNI29vSIGDzBMO3li74KcpVQKBx634/JXpai/LcE378KIiKFYG8kIC175904goxDazJIAL5/9e94Ri5yT88C023WHTrPrzxwq6OC5t4gMMx3ulHjZ9p1XLn8O34T4GdCNSJKaOJuVcLft8saUyxUzi5ZDqPObr/PeBUryYFgjwFnF08aLq0e4d0eHliBkf7ZNhFfNs8gIx46Iun2LmdqxFPytGPLZ4lS1qF+UDMyCT6/JO4CS9YT10/stwcxsKlVVca6yoU3DrgUbQIDAQAB"
+}

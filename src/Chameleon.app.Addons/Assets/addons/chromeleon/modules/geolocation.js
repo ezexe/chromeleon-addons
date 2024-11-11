@@ -1,18 +1,14 @@
-import { SETTINGS_ARRAY, Actions } from "./settings.js";
+import { Actions, settings, SETTINGS_ARRAY, updateSettings } from "./settings.js";
 import { tryPrompt } from "./prompter.js";
 import { log } from "./logger.js";
+import { genUULE, updateLocationRules } from "./uule.js";
 
 export async function createGeoContextMenus() {
-  let settings = await browser.storage.sync.get(SETTINGS_ARRAY);
-  chrome.contextMenus.create({
-    title: "GEO",
-    id: "geo",
-    contexts: ["browser_action"],
-  });
+  chrome.contextMenus.create({ title: "GEO", id: "geo", contexts: ["action"] });
   chrome.contextMenus.create({
     title: "Enabled",
     id: "geo-enabled",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     type: "checkbox",
     checked: settings.geoSpoofing,
     parentId: "geo",
@@ -20,25 +16,26 @@ export async function createGeoContextMenus() {
   chrome.contextMenus.create({
     title: "Reset GEO data (ask for new values)",
     id: "geo-reset",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "geo",
   });
   chrome.contextMenus.create({
     title: "Test GEO location",
     id: "geo-test",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "geo",
   });
   chrome.contextMenus.create({
     title: "Options",
     id: "options",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "geo",
   });
+  // createRandomizeGeoMenu(settings);
   chrome.contextMenus.create({
     title: "Randomize",
     id: "randomizeGeo",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "options",
   });
   const randomizeOptions = [
@@ -53,16 +50,17 @@ export async function createGeoContextMenus() {
     chrome.contextMenus.create({
       title: option.title,
       id: `randomizeGeo:${option.value}`,
-      contexts: ["browser_action"],
+      contexts: ["action"],
       checked: settings.randomizeGeo === option.value,
       type: "radio",
       parentId: "randomizeGeo",
     });
   });
+  // createAccuracyMenu();
   chrome.contextMenus.create({
     title: "Accuracy",
     id: "accuracy",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "options",
   });
   const accuracyOptions = [64.0999, 34.0999, 10.0999];
@@ -70,16 +68,17 @@ export async function createGeoContextMenus() {
     chrome.contextMenus.create({
       title: accuracy.toString(),
       id: `accuracy:${accuracy}`,
-      contexts: ["browser_action"],
+      contexts: ["action"],
       checked: settings.accuracy === accuracy,
       type: "radio",
       parentId: "accuracy",
     });
   });
+  // createHistoryMenu();
   chrome.contextMenus.create({
     title: "GEO History",
     id: "history",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     visible: settings.history.length !== 0,
     parentId: "options",
   });
@@ -87,51 +86,48 @@ export async function createGeoContextMenus() {
     chrome.contextMenus.create({
       title: `${a}, ${b}`,
       id: `set:${a}|${b}`,
-      contexts: ["browser_action"],
+      contexts: ["action"],
       parentId: "history",
       type: "radio",
       checked: settings.latitude === a && settings.longitude === b,
     });
   }
+  // createBypassMenu();
   chrome.contextMenus.create({
     title: "Bypass Spoofing",
     id: "bypass",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "options",
   });
   chrome.contextMenus.create({
     title: "Add to the Exception List",
     id: "add-exception",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "bypass",
   });
   chrome.contextMenus.create({
     title: "Remove from the Exception List",
     id: "remove-exception",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "bypass",
   });
   chrome.contextMenus.create({
     title: "Open Exception List in Editor",
     id: "exception-editor",
-    contexts: ["browser_action"],
+    contexts: ["action"],
     parentId: "bypass",
   });
 }
 
 export async function handleGeoMenuClick(info, tab) {
-  let settings = await browser.storage.sync.get(SETTINGS_ARRAY);
   if (info.menuItemId === "geo-reset") {
-    try {
-      let userInput = await tryPrompt(tab, Actions.GEO_RESET);
-      if (userInput === undefined) return;
-      const [latitude, longitude] = userInput.split(",");
-      settings.latitude = parseFloat(latitude.trim());
-      settings.longitude = parseFloat(longitude.trim());
-      updateGeoHistory();
-    } catch (e) {
-      log.error("Failed to reset GEO data", e);
-    }
+    let userInput = await tryPrompt(tab, Actions.GEO_RESET);
+    if (userInput === null) return;
+    const [latitude, longitude] = userInput.split(",");
+    settings.latitude = parseFloat(latitude.trim());
+    settings.longitude = parseFloat(longitude.trim());
+
+    updateGeoHistory();
   } else if (info.menuItemId === "geo-enabled") {
     settings.geoSpoofing = info.checked;
   } else if (info.menuItemId === "geo-test") {
@@ -161,7 +157,7 @@ export async function handleGeoMenuClick(info, tab) {
   } else if (info.menuItemId === "exception-editor") {
     openExceptionEditor();
   }
-  await browser.storage.sync.set(settings);
+    updateSettings();
 }
 
 function updateGeoHistory() {
